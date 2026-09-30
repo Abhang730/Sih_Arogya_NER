@@ -1,0 +1,323 @@
+{
+  "$schema": "../schema/joint_protocol.schema.json",
+  "joint_id": "hip",
+  "protocol_version": "1.0.0",
+  "display": {
+    "title": "Hip Assessment",
+    "short_title": "Hip",
+    "body_map_region": "hip",
+    "laterality_required": true
+  },
+  "status": "platform_ready",
+  "supported_sides": ["left", "right", "both"],
+
+  "clinical_questionnaire": {
+    "instrument": "WOMAC",
+    "instrument_version": "3.1 (Likert 5-point)",
+    "status": "specified",
+    "licence_note": "WOMAC is validated for both hip and knee osteoarthritis (Bellamy et al., 1982) and is the instrument named by the PRD for both (§15.2 table). Item text is stored as localisation keys only; licensing and final wording are a deployment-authority decision.",
+    "items": [
+      { "id": "womac_pain_1", "subscale": "pain", "text_key": "q.womac.pain.1.walk_flat", "voice_prompt_key": "v.womac.pain.1" },
+      { "id": "womac_pain_2", "subscale": "pain", "text_key": "q.womac.pain.2.stairs", "voice_prompt_key": "v.womac.pain.2" },
+      { "id": "womac_pain_3", "subscale": "pain", "text_key": "q.womac.pain.3.night_bed", "voice_prompt_key": "v.womac.pain.3" },
+      { "id": "womac_pain_4", "subscale": "pain", "text_key": "q.womac.pain.4.sit_lying", "voice_prompt_key": "v.womac.pain.4" },
+      { "id": "womac_pain_5", "subscale": "pain", "text_key": "q.womac.pain.5.standing", "voice_prompt_key": "v.womac.pain.5" },
+      { "id": "womac_stiff_1", "subscale": "stiffness", "text_key": "q.womac.stiff.1.morning", "voice_prompt_key": "v.womac.stiff.1" },
+      { "id": "womac_stiff_2", "subscale": "stiffness", "text_key": "q.womac.stiff.2.later_day", "voice_prompt_key": "v.womac.stiff.2" },
+      { "id": "womac_func_1", "subscale": "function", "text_key": "q.womac.func.1.descend_stairs", "voice_prompt_key": "v.womac.func.1" },
+      { "id": "womac_func_2", "subscale": "function", "text_key": "q.womac.func.2.ascend_stairs", "voice_prompt_key": "v.womac.func.2" },
+      { "id": "womac_func_3", "subscale": "function", "text_key": "q.womac.func.3.rise_sitting", "voice_prompt_key": "v.womac.func.3" },
+      { "id": "womac_func_4", "subscale": "function", "text_key": "q.womac.func.4.standing", "voice_prompt_key": "v.womac.func.4" },
+      { "id": "womac_func_5", "subscale": "function", "text_key": "q.womac.func.5.bend_floor", "voice_prompt_key": "v.womac.func.5" },
+      { "id": "womac_func_6", "subscale": "function", "text_key": "q.womac.func.6.walk_flat", "voice_prompt_key": "v.womac.func.6" },
+      { "id": "womac_func_7", "subscale": "function", "text_key": "q.womac.func.7.car", "voice_prompt_key": "v.womac.func.7" },
+      { "id": "womac_func_8", "subscale": "function", "text_key": "q.womac.func.8.shopping", "voice_prompt_key": "v.womac.func.8" },
+      { "id": "womac_func_9", "subscale": "function", "text_key": "q.womac.func.9.socks_on", "voice_prompt_key": "v.womac.func.9" },
+      { "id": "womac_func_10", "subscale": "function", "text_key": "q.womac.func.10.rise_bed", "voice_prompt_key": "v.womac.func.10" },
+      { "id": "womac_func_11", "subscale": "function", "text_key": "q.womac.func.11.socks_off", "voice_prompt_key": "v.womac.func.11" },
+      { "id": "womac_func_12", "subscale": "function", "text_key": "q.womac.func.12.lying_bed", "voice_prompt_key": "v.womac.func.12" },
+      { "id": "womac_func_13", "subscale": "function", "text_key": "q.womac.func.13.bath", "voice_prompt_key": "v.womac.func.13" },
+      { "id": "womac_func_14", "subscale": "function", "text_key": "q.womac.func.14.sitting", "voice_prompt_key": "v.womac.func.14" },
+      { "id": "womac_func_15", "subscale": "function", "text_key": "q.womac.func.15.toilet", "voice_prompt_key": "v.womac.func.15" },
+      { "id": "womac_func_16", "subscale": "function", "text_key": "q.womac.func.16.heavy_duties", "voice_prompt_key": "v.womac.func.16" },
+      { "id": "womac_func_17", "subscale": "function", "text_key": "q.womac.func.17.light_duties", "voice_prompt_key": "v.womac.func.17" }
+    ],
+    "scoring": {
+      "response_options": [
+        { "value": 0, "text_key": "a.womac.none" },
+        { "value": 1, "text_key": "a.womac.mild" },
+        { "value": 2, "text_key": "a.womac.moderate" },
+        { "value": 3, "text_key": "a.womac.severe" },
+        { "value": 4, "text_key": "a.womac.extreme" }
+      ],
+      "subscales": [
+        { "name": "pain", "min": 0, "max": 20 },
+        { "name": "stiffness", "min": 0, "max": 8 },
+        { "name": "function", "min": 0, "max": 68 }
+      ],
+      "total": { "min": 0, "max": 96 },
+      "direction": "higher_is_worse",
+      "normalisation": "percent_of_max",
+      "severity_bands": []
+    }
+  },
+
+  "camera_setup": {
+    "views": ["front", "side_right", "side_left"],
+    "full_body_required": true,
+    "est_distance_m": { "min": 2.5, "max": 4.5 },
+    "framing_note_key": "cam.hip.framing",
+    "min_visibility_landmarks": [
+      "left_shoulder", "right_shoulder", "left_hip", "right_hip",
+      "left_knee", "right_knee", "left_ankle", "right_ankle"
+    ]
+  },
+
+  "movement_tests": [
+    {
+      "id": "hip_active_rom",
+      "name_key": "test.hip.active_rom.name",
+      "instruction_key": "test.hip.active_rom.instruction",
+      "kind": "active_rom",
+      "repeat_count": 3,
+      "required": true,
+      "camera_view": "front",
+      "derived_features": ["hip_flexion_rom", "hip_abduction_rom", "hip_rom_confidence"]
+    },
+    {
+      "id": "hip_sit_to_stand",
+      "name_key": "test.hip.sit_to_stand.name",
+      "instruction_key": "test.hip.sit_to_stand.instruction",
+      "kind": "sit_to_stand",
+      "repeat_count": 5,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": ["sts_trunk_flexion_peak", "sts_duration_mean", "hip_pelvis_compensation"]
+    },
+    {
+      "id": "hip_walk",
+      "name_key": "test.hip.walk.name",
+      "instruction_key": "test.hip.walk.instruction",
+      "kind": "walk",
+      "repeat_count": 6,
+      "duration_s": 15,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": ["gait_cadence", "gait_step_time_cv", "hip_pelvis_drop", "gait_asymmetry_index"]
+    },
+    {
+      "id": "hip_step_down",
+      "name_key": "test.hip.step_down.name",
+      "instruction_key": "test.hip.step_down.instruction",
+      "kind": "step_down",
+      "repeat_count": 3,
+      "required": false,
+      "camera_view": "front",
+      "derived_features": ["hip_pelvis_drop"]
+    }
+  ],
+
+  "landmark_subset": {
+    "joint_chains": [
+      { "name": "right_hip_flexion", "landmarks": ["right_shoulder", "right_hip", "right_knee"], "angle_feature": "hip_flexion_angle_right" },
+      { "name": "left_hip_flexion", "landmarks": ["left_shoulder", "left_hip", "left_knee"], "angle_feature": "hip_flexion_angle_left" },
+      { "name": "pelvis_obliquity_frontal", "landmarks": ["left_hip", "right_hip", "left_knee"], "angle_feature": "pelvis_obliquity" }
+    ],
+    "primary_angle": "hip_flexion_angle_right"
+  },
+
+  "wearable": {
+    "supported": true,
+    "configurations": [
+      {
+        "id": "single_pod_thigh",
+        "pods": [{ "pod_index": 1, "segment": "thigh", "placement_key": "place.hip.pod1.thigh" }],
+        "label_key": "wearable.hip.single",
+        "status": "preferred",
+        "$note": "PRD §12.2 representative placement: hip/thigh IMU."
+      },
+      {
+        "id": "dual_pod_pelvis_thigh",
+        "pods": [
+          { "pod_index": 1, "segment": "pelvis", "placement_key": "place.hip.pod1.pelvis" },
+          { "pod_index": 2, "segment": "thigh", "placement_key": "place.hip.pod2.thigh" }
+        ],
+        "label_key": "wearable.hip.dual",
+        "status": "untrained",
+        "$note": "Would provide pelvis-relative thigh motion. No labelled data exists at this placement."
+      },
+      {
+        "id": "reference_l5_dorsal_foot",
+        "pods": [
+          { "pod_index": 1, "segment": "lumbar_l5", "placement_key": "place.reference.pod1.l5" },
+          { "pod_index": 2, "segment": "dorsal_foot", "placement_key": "place.reference.pod2.foot" }
+        ],
+        "label_key": "wearable.hip.reference_l5_foot",
+        "status": "untrained",
+        "$note": "Placement at which real labelled hip-OA IMU data exists (Voisard et al. 2025 includes a hip osteoarthritis cohort)."
+      }
+    ],
+    "sensor_channels": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"],
+    "sample_rate_hz": 50
+  },
+
+  "feature_pipeline": [
+    { "key": "hip_flexion_angle_right", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Right hip flexion angle from the shoulder-hip-knee chain. The protocol's primary angle item." },
+    { "key": "hip_flexion_angle_left", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Left hip flexion angle from the shoulder-hip-knee chain." },
+    { "key": "pelvis_obliquity", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Frontal-plane pelvis obliquity from the two hip landmarks and a knee reference." },
+    { "key": "hip_flexion_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active hip flexion range of motion." },
+    { "key": "hip_abduction_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active hip abduction range of motion." },
+    { "key": "hip_pelvis_drop", "group": "camera_gait", "unit": "deg", "source": "derived", "description": "Contralateral pelvic drop during single-leg stance — a recognised hip-abductor insufficiency proxy." },
+    { "key": "hip_pelvis_compensation", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Pelvic/trunk compensation during rising." },
+    { "key": "sts_trunk_flexion_peak", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Peak trunk flexion during sit-to-stand." },
+    { "key": "sts_duration_mean", "group": "camera_kinematics", "unit": "s", "source": "derived", "description": "Mean sit-to-stand transition duration." },
+    { "key": "gait_cadence", "group": "camera_gait", "unit": "steps/min", "source": "camera", "description": "Step rate." },
+    { "key": "gait_step_time_cv", "group": "camera_gait", "unit": "ratio", "source": "derived", "description": "Step-time variability." },
+    { "key": "gait_asymmetry_index", "group": "camera_gait", "unit": "ratio", "source": "derived", "description": "Left/right gait symmetry." },
+    { "key": "hip_rom_confidence", "group": "camera_kinematics", "unit": "ratio", "source": "derived", "description": "Capture quality score." },
+    { "key": "imu_acc_magnitude_mean", "group": "imu_acc", "unit": "g", "source": "wearable", "description": "Mean Euclidean acceleration magnitude." },
+    { "key": "imu_acc_magnitude_std", "group": "imu_acc", "unit": "g", "source": "wearable", "description": "Acceleration magnitude variability." },
+    { "key": "imu_acc_jerk_mean", "group": "imu_acc", "unit": "g/s", "source": "derived", "description": "Mean absolute first derivative of acceleration magnitude - movement smoothness." },
+    { "key": "imu_gyro_magnitude_mean", "group": "imu_gyro", "unit": "deg/s", "source": "wearable", "description": "Mean angular velocity magnitude." },
+    { "key": "imu_gyro_magnitude_peak", "group": "imu_gyro", "unit": "deg/s", "source": "wearable", "description": "Peak angular velocity." },
+    { "key": "imu_gyro_hf_variance", "group": "imu_gyro", "unit": "deg^2/s^2", "source": "derived", "description": "High-frequency variance of the angular velocity signal.", "research_grade": true },
+    { "key": "imu_proximal_distal_correlation", "group": "imu_relative", "unit": "ratio", "source": "derived", "description": "Proximal/distal signal correlation under dual-pod capture." },
+    { "key": "imu_relative_phase_lag", "group": "imu_relative", "unit": "ms", "source": "derived", "description": "Phase lag between proximal and distal segment motion.", "research_grade": true },
+    { "key": "imu_signal_quality", "group": "imu_acc", "unit": "ratio", "source": "derived", "description": "Sensor quality score." },
+    { "key": "womac_pain", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC pain subscale, 0-20." },
+    { "key": "womac_stiffness", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC stiffness subscale, 0-8." },
+    { "key": "womac_function", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC function subscale, 0-68." },
+    { "key": "womac_total", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC total, 0-96." }
+  ],
+
+  "models": [
+    {
+      "branch": "imu_temporal",
+      "model_id": "hip_imu_temporal",
+      "version": "0.1.0",
+      "target": {
+        "label": "hip_oa_risk_marker",
+        "label_source": "hip OA vs asymptomatic group membership",
+        "label_provenance": "Voisard et al. 2025, Scientific Data — hip osteoarthritis cohort"
+      },
+      "deployment": ["edge_tflite", "cloud"],
+      "architecture": "Shallow MLP over 7 engineered IMU features (7-16-8-1) with standardisation folded into the first layer, exported as float32 TFLite. Deliberately NOT the TCN of PRD §17.2: 15 hip-OA participants cannot support a sequence model.",
+      "training_status": "trained",
+      "explainability": "none",
+      "dataset": "Voisard et al. 2025, Scientific Data - Clinical Gait Signals (CC BY 4.0, non-commercial). 434 trials from 88 participants (15 hip-OA, 73 asymptomatic); metrics are participant-grouped 5-fold cross-validation.",
+      "metrics": {
+        "evaluation": "StratifiedGroupKFold, 5 folds, grouped on subject_id; all values are out-of-fold over 434 trials",
+        "validation_scope": "single dataset - no external validation and no NER validation",
+        "auc_grouped_cv_mean": 0.9105433973705246,
+        "auc_grouped_cv_std": 0.07402449885715552,
+        "auc_pooled_oof": 0.88003003003003,
+        "average_precision": 0.6149608228764529,
+        "brier": 0.10606577149676266,
+        "threshold": 0.00033262744545936584,
+        "target_sensitivity": 0.9,
+        "operating_point_sensitivity": 0.9054054054054054,
+        "operating_point_specificity": 0.6055555555555555,
+        "ppv_at_dataset_prevalence": 0.32057416267942584,
+        "npv_at_dataset_prevalence": 0.9688888888888889,
+        "prevalence": 0.17050691244239632,
+        "n_trials": 434,
+        "n_participants": 88,
+        "n_positive_participants": 15,
+        "n_negative_participants": 73,
+        "calibration": "not_calibrated"
+      },
+      "input_modalities": ["imu_l5", "imu_dorsal_foot"],
+      "placement_note": "Trained at lumbar-L5 + dorsal-foot placement, not the protocol's thigh placement.",
+      "limitations": [
+        "Not validated in NER.",
+        "Cohort label, not a clinical diagnosis.",
+        "Output is a ranking, not a calibrated probability: calibration was never performed, and the training run's operating threshold sits near zero because the network's scores saturate towards 0 and 1.",
+        "Metrics are participant-grouped cross-validation within one dataset, on 15 positive participants - the fold-to-fold spread is wide and must not be read as a clinical accuracy claim (PRD §26.3)."
+      ]
+    },
+    {
+      "branch": "camera_temporal",
+      "model_id": "hip_camera_tcn",
+      "version": "0.0.0",
+      "target": {
+        "label": "hip_oa_risk_marker",
+        "label_source": "none available",
+        "label_provenance": "no public labelled pose-sequence dataset for hip OA is currently wired in; Bertaux et al. (2022) marker-based hip-OA gait kinematics is a candidate with a documented MoCap-vs-monocular domain gap"
+      },
+      "deployment": ["edge_tflite"],
+      "architecture": "1D-CNN / TCN over engineered pose features",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": ["Deliberately untrained — no labelled monocular pose data for hip OA."]
+    },
+    {
+      "branch": "clinical_tabular",
+      "model_id": "hip_clinical_xgb",
+      "version": "0.0.0",
+      "target": { "label": "hip_oa_risk_marker", "label_source": "none available", "label_provenance": "no questionnaire/clinical table linked to a hip OA label is wired in" },
+      "deployment": ["edge_tflite"],
+      "architecture": "XGBoost + SHAP",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "shap",
+      "input_modalities": ["questionnaire", "demographics"],
+      "limitations": ["Untrained. WOMAC scores are still computed and reported as measurements."]
+    },
+    {
+      "branch": "fusion",
+      "model_id": "hip_fusion_lr",
+      "version": "0.0.0",
+      "target": { "label": "hip_oa_risk_marker", "label_source": "as per contributing branch", "label_provenance": "Voisard et al. 2025 where labels are required" },
+      "deployment": ["edge_tflite"],
+      "architecture": "calibrated logistic regression over available branches",
+      "training_status": "planned",
+      "explainability": "feature_attribution",
+      "input_modalities": ["imu_l5", "imu_dorsal_foot", "questionnaire"],
+      "placement_note": "Fuses branch scores produced at the lumbar-L5 + dorsal-foot reference placement, not the protocol's thigh placement.",
+      "limitations": ["Excludes untrained branches rather than imputing them."]
+    }
+  ],
+
+  "risk_logic": {
+    "bands": [
+      { "id": "low", "min_score": 0.0, "label_key": "risk.low", "action_key": "action.self_care" },
+      { "id": "moderate", "min_score": 0.40, "label_key": "risk.moderate", "action_key": "action.phc_review" },
+      { "id": "high", "min_score": 0.70, "label_key": "risk.high", "action_key": "action.specialist_review" }
+    ],
+    "default_referral": "phc_review",
+    "threshold_provenance": "PLACEHOLDER — shared with the knee module's starting bands; not validated operating points.",
+    "operating_point": { "priority": "sensitivity", "rationale": "PRD §33: under-referral is rated High impact." },
+    "deferral": { "allowed": true, "reason_required": true }
+  },
+
+  "report_template": [
+    { "section_id": "patient", "title_key": "report.section.patient", "fields": ["arogya_patient_id", "masked_identity", "age", "sex", "datetime"] },
+    { "section_id": "worker_site", "title_key": "report.section.worker_site", "fields": ["worker_id", "worker_name", "phc", "district"] },
+    { "section_id": "initial_screen", "title_key": "report.section.initial_screen", "fields": ["pain_map", "mobility_summary", "exposure_profile"] },
+    { "section_id": "whole_body_screen", "title_key": "report.section.whole_body_screen", "fields": ["joint_markers", "data_quality"] },
+    { "section_id": "targeted_joint", "title_key": "report.section.targeted_joint", "fields": ["joint", "side", "womac_pain", "womac_stiffness", "womac_function", "womac_total", "hip_flexion_rom", "gait_features", "sensor_findings"] },
+    { "section_id": "ai_result", "title_key": "report.section.ai_result", "fields": ["risk_band", "evidence_contributors", "modality_confidence", "edge_model_version", "placement_notice"] },
+    { "section_id": "referral", "title_key": "report.section.referral", "fields": ["recommended_action", "urgency"] },
+    { "section_id": "preventive_guidance", "title_key": "report.section.preventive_guidance", "fields": ["guidance_items"] },
+    { "section_id": "disclaimer", "title_key": "report.section.disclaimer", "fields": ["screening_not_diagnosis"] }
+  ],
+
+  "safety": {
+    "contraindications": [
+      "Recent hip fracture, dislocation or arthroplasty within the clinician-set recovery window",
+      "Inability to weight-bear or stand unaided for the required duration",
+      "Severe fixed flexion deformity preventing the movement tests"
+    ],
+    "red_flags": [
+      "Night pain with systemic symptoms",
+      "Groin pain with inability to weight-bear after trauma",
+      "Known malignancy or immunosuppression"
+    ],
+    "stop_conditions": [
+      "Pain above the patient's stated tolerable level",
+      "Patient becomes unsteady or requests to stop",
+      "Pose quality gate not cleared after two repositioning attempts"
+    ],
+    "disclaimer_key": "disclaimer.screening_not_diagnosis"
+  }
+}

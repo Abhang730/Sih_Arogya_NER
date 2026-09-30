@@ -1,0 +1,59 @@
+{
+  "$comment": "Canonical 33-landmark topology (PRD §10.2). Indices verified against Google's MediaPipe Pose Landmarker documentation, which is the same BlazePose topology exposed by ML Kit Pose Detection on Android/iOS. Do not renumber: pose feature code, protocol landmark_chains and synced records all assume these indices.",
+  "topology": "blazepose_33",
+  "landmark_count": 33,
+  "coordinate_spaces": {
+    "normalized": "x,y in [0,1] relative to image; z = depth relative to hip midpoint",
+    "world": "metric metres, origin at hip midpoint",
+    "ml_kit_note": "ML Kit Pose Detection returns x,y plus optional z; there is no world-coordinate output on-device. Angle features are therefore computed in the 2D image plane and are view-dependent (see PRD §13.4)."
+  },
+  "landmarks": [
+    { "index": 0, "key": "nose", "name": "nose", "region": "head" },
+    { "index": 1, "key": "left_eye_inner", "name": "left eye (inner)", "region": "head" },
+    { "index": 2, "key": "left_eye", "name": "left eye", "region": "head" },
+    { "index": 3, "key": "left_eye_outer", "name": "left eye (outer)", "region": "head" },
+    { "index": 4, "key": "right_eye_inner", "name": "right eye (inner)", "region": "head" },
+    { "index": 5, "key": "right_eye", "name": "right eye", "region": "head" },
+    { "index": 6, "key": "right_eye_outer", "name": "right eye (outer)", "region": "head" },
+    { "index": 7, "key": "left_ear", "name": "left ear", "region": "head" },
+    { "index": 8, "key": "right_ear", "name": "right ear", "region": "head" },
+    { "index": 9, "key": "mouth_left", "name": "mouth (left)", "region": "head" },
+    { "index": 10, "key": "mouth_right", "name": "mouth (right)", "region": "head" },
+    { "index": 11, "key": "left_shoulder", "name": "left shoulder", "region": "upper_limb" },
+    { "index": 12, "key": "right_shoulder", "name": "right shoulder", "region": "upper_limb" },
+    { "index": 13, "key": "left_elbow", "name": "left elbow", "region": "upper_limb" },
+    { "index": 14, "key": "right_elbow", "name": "right elbow", "region": "upper_limb" },
+    { "index": 15, "key": "left_wrist", "name": "left wrist", "region": "upper_limb" },
+    { "index": 16, "key": "right_wrist", "name": "right wrist", "region": "upper_limb" },
+    { "index": 17, "key": "left_pinky", "name": "left pinky", "region": "hand" },
+    { "index": 18, "key": "right_pinky", "name": "right pinky", "region": "hand" },
+    { "index": 19, "key": "left_index", "name": "left index", "region": "hand" },
+    { "index": 20, "key": "right_index", "name": "right index", "region": "hand" },
+    { "index": 21, "key": "left_thumb", "name": "left thumb", "region": "hand" },
+    { "index": 22, "key": "right_thumb", "name": "right thumb", "region": "hand" },
+    { "index": 23, "key": "left_hip", "name": "left hip", "region": "pelvis" },
+    { "index": 24, "key": "right_hip", "name": "right hip", "region": "pelvis" },
+    { "index": 25, "key": "left_knee", "name": "left knee", "region": "lower_limb" },
+    { "index": 26, "key": "right_knee", "name": "right knee", "region": "lower_limb" },
+    { "index": 27, "key": "left_ankle", "name": "left ankle", "region": "lower_limb" },
+    { "index": 28, "key": "right_ankle", "name": "right ankle", "region": "lower_limb" },
+    { "index": 29, "key": "left_heel", "name": "left heel", "region": "foot" },
+    { "index": 30, "key": "right_heel", "name": "right heel", "region": "foot" },
+    { "index": 31, "key": "left_foot_index", "name": "left foot index", "region": "foot" },
+    { "index": 32, "key": "right_foot_index", "name": "right foot index", "region": "foot" }
+  ],
+  "quality_gate": {
+    "$comment": "PRD §9.4 — the gate the worker must clear before Stage-1 capture is accepted.",
+    "required_regions": ["head", "shoulder", "pelvis", "knee", "ankle"],
+    "reference_landmarks": {
+      "head": ["nose"],
+      "shoulder": ["left_shoulder", "right_shoulder"],
+      "pelvis": ["left_hip", "right_hip"],
+      "knee": ["left_knee", "right_knee"],
+      "ankle": ["left_ankle", "right_ankle"]
+    },
+    "default_min_likelihood": 0.5,
+    "lighting_metric": "mean_luma_of_roi",
+    "default_min_lighting": 0.25
+  }
+}

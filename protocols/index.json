@@ -1,0 +1,79 @@
+{
+  "registry_version": "1.0.0",
+  "$comment": "Single discovery point for joint protocols (PRD §12). The mobile app and backend both read this file instead of hard-coding a joint list, which is what makes the platform extensible without screen code changes (PRD §29 Maintainability).",
+  "schema": "schema/joint_protocol.schema.json",
+  "core": {
+    "landmarks": "core/landmarks.json"
+  },
+  "stage1": {
+    "joint_order": ["knee", "hip", "shoulder", "ankle", "elbow", "wrist"],
+    "$joint_order_note": "Order used to render the Stage-1 body risk map (PRD §11.1) and the joint selection screen (PRD §12.3).",
+    "body_map_regions": [
+      { "region": "head_neck", "label_key": "bodymap.head_neck", "joint_id": null },
+      { "region": "shoulder", "label_key": "bodymap.shoulder", "joint_id": "shoulder", "sides": ["left", "right"] },
+      { "region": "elbow", "label_key": "bodymap.elbow", "joint_id": "elbow", "sides": ["left", "right"] },
+      { "region": "wrist", "label_key": "bodymap.wrist", "joint_id": "wrist", "sides": ["left", "right"] },
+      { "region": "hip", "label_key": "bodymap.hip", "joint_id": "hip", "sides": ["left", "right"] },
+      { "region": "knee", "label_key": "bodymap.knee", "joint_id": "knee", "sides": ["left", "right"] },
+      { "region": "ankle", "label_key": "bodymap.ankle", "joint_id": "ankle", "sides": ["left", "right"] }
+    ]
+  },
+  "protocols": [
+    {
+      "joint_id": "knee",
+      "path": "knee/protocol.json",
+      "version": "1.0.0",
+      "status": "mvp",
+      "sides": ["left", "right", "both"],
+      "title_key": "joint.knee.title",
+      "$note": "PRD §2.3 / §12.2 — the only joint with a complete end-to-end module."
+    },
+    {
+      "joint_id": "hip",
+      "path": "hip/protocol.json",
+      "version": "1.0.0",
+      "status": "platform_ready",
+      "sides": ["left", "right", "both"],
+      "title_key": "joint.hip.title"
+    },
+    {
+      "joint_id": "shoulder",
+      "path": "shoulder/protocol.json",
+      "version": "1.0.0",
+      "status": "platform_ready",
+      "sides": ["left", "right", "both"],
+      "title_key": "joint.shoulder.title"
+    },
+    {
+      "joint_id": "ankle",
+      "path": "ankle/protocol.json",
+      "version": "1.0.0",
+      "status": "platform_ready",
+      "sides": ["left", "right", "both"],
+      "title_key": "joint.ankle.title"
+    },
+    {
+      "joint_id": "elbow",
+      "path": "elbow/protocol.json",
+      "version": "1.0.0",
+      "status": "future",
+      "sides": ["left", "right", "both"],
+      "title_key": "joint.elbow.title"
+    },
+    {
+      "joint_id": "wrist",
+      "path": "wrist/protocol.json",
+      "version": "1.0.0",
+      "status": "future",
+      "sides": ["left", "right", "both"],
+      "title_key": "joint.wrist.title"
+    }
+  ],
+  "instrument_registry": [
+    { "instrument": "WOMAC", "used_by": ["knee", "hip"], "status": "specified", "items": 24, "total_max": 96 },
+    { "instrument": "SPADI", "used_by": ["shoulder"], "status": "pending_clinical_sign_off", "items": null, "total_max": null },
+    { "instrument": "FAAM", "used_by": ["ankle"], "status": "pending_clinical_sign_off", "items": null, "total_max": null },
+    { "instrument": "QuickDASH", "used_by": ["elbow"], "status": "pending_clinical_sign_off", "items": null, "total_max": null },
+    { "instrument": "PRWE", "used_by": ["wrist"], "status": "pending_clinical_sign_off", "items": null, "total_max": null }
+  ]
+}

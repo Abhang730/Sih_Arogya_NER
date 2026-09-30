@@ -1,0 +1,1057 @@
+
+### [Title] AROGYA-NER
+
+### [Heading2] Smart Clinic in a Pocket
+
+### [Heading1] UPDATED MASTER PRODUCT REQUIREMENTS DOCUMENT (PRD) + PRODUCT/TECHNICAL DESIGN (PTD)
+A scalable, offline-first, multimodal AI-assisted musculoskeletal and osteoarthritis risk-screening platform for the North Eastern Region of India.
+
+[TABLE]
+CANONICAL PRODUCT FLOWHealthcare Worker Login → Patient Registration → Full-Body Questionnaire → Whole-Body Movement Screening → Joint Risk Localization → Targeted Joint Assessment → Joint-Specific Questionnaire + Wearable + Optional Imaging → Multimodal Fusion → Risk / Referral Indication → Report → Offline Store / Cloud Sync → Specialist Dashboard.
+[/TABLE]
+
+Project: Arogya-NERTeam: TerraNexusEvent: Smart India Hackathon (SIH) 2026Problem Statement: AI-Assisted Early Detection System for Osteoarthritis (OA) Risk Markers in North Eastern Region (NER)Version: 2.0 – Unified architectureDate: 28 September 2026Document status: Product and engineering master source of truth
+Official SIH problem ID, theme and team ID remain placeholders until supplied from the SIH portal.
+
+### [Heading1] 1. Document Control
+
+[TABLE]
+Item | Value
+Document type | Master PRD + PTD
+Product | Arogya-NER
+Primary users | ASHA workers and authorized healthcare workers
+Secondary users | Orthopaedic specialists / authorized reviewers / supervisors
+Primary platform | Android mobile app
+Secondary platform | Responsive web specialist dashboard
+Core deployment model | Offline-first edge screening with opportunistic cloud synchronization
+Primary clinical scope | OA / musculoskeletal risk-marker screening; knee is first end-to-end module
+Architecture scope | Multi-joint platform with joint-specific protocols
+Medical claim | Screening and referral support; not a standalone diagnostic device
+Security principle | Minimal data, encryption, role-based access, consent, no raw video retention by default
+[/TABLE]
+
+### [Heading2] 1.1 Source basis
+This master document consolidates the project decisions in the Arogya-NER Master Context and the subsequent complete technical specification, plus the decisions refined during project discussions: whole-body-first screening, joint-risk localization, targeted second-stage assessment, modular wearable placement, protected patient identity, and offline/online model switching.
+
+### [Heading2] 1.2 Binding product guardrails
+Never describe the system as independently diagnosing osteoarthritis. Use screening, risk indication, further assessment, and referral-support terminology.
+Never invent NER-specific clinical or genetic evidence. Regional hypotheses must be framed as hypotheses until locally validated.
+Never quote unmeasured accuracy, sensitivity, specificity, or clinical performance. Use target metrics and validation status.
+Clearly label what is real, prototype, simulated, planned, and clinically validated.
+Use pose/sensor models for perception. A small language model, where used, operates on structured outputs rather than raw video.
+Raw video should not be retained by default; retain derived landmarks/features necessary for research only when consent and governance permit.
+Kellgren-Lawrence grading should not be represented as a clinical grade unless supported by appropriate radiographic labels and validation.
+If Aadhaar is collected, protect it as a sensitive identifier and prefer an application-specific patient ID for all routine workflows and reports.
+
+### [Heading1] 2. Executive Summary
+Arogya-NER is an offline-first, mobile healthcare screening platform designed to extend basic musculoskeletal/OA risk screening into low-resource settings in the North Eastern Region. The product is deliberately built as a two-stage system rather than a single black-box model.
+
+### [Heading2] 2.1 Product thesis
+
+[TABLE]
+STAGE 1 — WHERE IS THE CONCERN?Perform a short standardized whole-body assessment using the smartphone camera. Extract 33 body landmarks, analyze gait, posture and movement over time, and run a quantized TFLite model locally to generate joint-level potential risk-marker scores.
+[/TABLE]
+
+[TABLE]
+STAGE 2 — WHAT DO WE KNOW ABOUT THAT JOINT?For a flagged joint, the healthcare worker launches a joint-specific protocol. The app combines a validated joint-specific questionnaire, targeted camera measurements, a small reusable wearable sensor pod, and optionally existing medical imaging/clinical reports. A multimodal model produces an explainable joint-level screening/referral indication.
+[/TABLE]
+
+### [Heading2] 2.2 Why this architecture
+It directly covers the SIH request for joint movement analysis, gait/posture assessment, pain/mobility screening, portable sensor assessment, AI/ML risk analysis, digital records, multilingual workflows, offline collection, preventive guidance and specialist dashboards.
+It avoids attaching hardware to every body region for every patient. The wearable is deployed only after Stage 1 identifies an area requiring closer assessment.
+It creates a scalable platform: the camera/edge infrastructure is common, while each joint has a protocol, questionnaire, sensor-placement configuration and model.
+It allows offline field triage while using stronger cloud models when connectivity returns, without making internet access a prerequisite for screening.
+It is explainable by design: the clinical model uses XGBoost + SHAP; the final decision uses structured evidence rather than a single opaque end-to-end prediction.
+
+### [Heading2] 2.3 MVP statement
+For SIH, the first fully implemented joint module should be the knee because the existing project work already covers WOMAC, knee flexion/ROM, gait, sit-to-stand and the knee wearable configuration. The platform, however, should be engineered from the beginning as a multi-joint framework so that hip, shoulder, ankle, elbow and wrist protocols can be added without redesigning the entire system.
+
+### [Heading1] 3. SIH Problem Statement Alignment
+
+[TABLE]
+SIH expectation | Arogya-NER response | Maturity
+AI-based OA risk analysis and screening | Two-stage AI pipeline: whole-body joint-risk localization + targeted joint multimodal screening | Architecture complete; training/clinical validation pending
+Joint movement analysis | 33-point pose backbone; temporal movement features; joint-specific protocols | Prototype for camera knee measurements
+Gait and posture assessment | Whole-body gait/posture capture; joint risk localization from movement sequence | Core design; protocol validation needed
+Pain and mobility inputs | Initial whole-body symptom screen + joint-specific validated questionnaire such as WOMAC for knee/hip | Questionnaire design ready; clinical validation required
+Imaging or sensor assessment if applicable | Reusable BLE IMU Motion Pod; optional existing X-ray/US/MRI/report attachment | Sensor prototype path; imaging AI future scope
+High-risk case identification | Joint-level risk bands and referral priority using multimodal fusion | Rule-based/edge prototype; learned model future
+PHC/rural/community deployment | ASHA/health-worker mobile workflow, offline-first operation | Strong architectural fit
+Digital records/reports | Protected patient ID, screening record, PDF report, longitudinal history | Planned/partially demonstrable
+Multilingual and simple UI | Language selector, icon-first interface, voice/TTS option | Prototype architecture; native-speaker validation pending
+Offline synchronization | Encrypted local DB + store-and-forward queue + cloud sync | Core design
+Secure data + analytics dashboard | RBAC, encryption, consent controls, specialist dashboard, trends | Core design; implementation hardening pending
+Portable and affordable | Existing smartphone + small reusable wearable; prototype wearable BOM approximately ₹570 | Prototype estimate; production costing pending
+[/TABLE]
+
+[TABLE]
+FIT WITH SIHThe architecture addresses the requested functional categories. The remaining work is primarily implementation maturity, dataset acquisition, NER-specific validation, clinical governance and field usability validation—not a missing core product component.
+[/TABLE]
+
+### [Heading1] 4. Problem, Users and Objectives
+
+### [Heading2] 4.1 Problem statement in product terms
+Remote and rural NER healthcare settings can lack specialist orthopaedic access and diagnostic infrastructure. The product opportunity is not to replace diagnostic imaging or specialists, but to provide a standardized first-line movement/symptom screening mechanism that helps health workers document patients, recognize potential movement-related risk markers, prioritize further assessment and referral, and preserve information for later specialist review.
+
+### [Heading2] 4.2 Primary users
+
+[TABLE]
+Persona | Needs | Primary device
+ASHA worker | Fast, guided, low-literacy screening; offline; minimal typing; clear referral action | Android phone
+ANM / healthcare worker | Repeatable protocol; patient records; sensor-assisted assessment | Android phone + Motion Pod
+PHC supervisor | Screening volume, referral queue, worker performance, data quality | Web dashboard
+Orthopaedic specialist | Patient history, questionnaire, movement features, reports, attachments, trends | Web dashboard
+Patient | Understand why further assessment is advised; receive simple preventive guidance | Worker-assisted mobile / print/PDF report
+[/TABLE]
+
+### [Heading2] 4.3 Product goals
+Provide a repeatable whole-body movement screen before targeted joint testing.
+Localize potential joint-level movement risk markers from a short camera assessment.
+Perform a joint-specific second-stage assessment only where indicated.
+Combine subjective symptoms, biomechanics, wearable signals and available medical evidence in an explainable way.
+Operate core screening and report generation without internet.
+Create secure longitudinal digital records linked to the worker and healthcare location.
+Support multiple NER languages and voice-assisted interaction over time.
+Create a modular technical base for additional joints without duplicating the entire platform.
+
+### [Heading1] 5. Scope and Product Boundaries
+
+### [Heading2] 5.1 In scope for the platform
+Worker authentication and authorization
+Patient registration and protected identity handling
+Whole-body questionnaire
+Whole-body camera screening
+33-landmark pose extraction
+Gait/posture/movement feature extraction
+Offline TFLite joint-risk localization
+Joint selection and joint-specific protocol engine
+Joint-specific questionnaire
+Wearable Motion Pod integration over BLE
+Optional medical-image/report attachment
+Joint-specific multimodal fusion
+Risk/referral indication
+Preventive guidance
+PDF/digital reporting
+Encrypted offline records
+Store-and-forward synchronization
+Cloud analysis when connected
+Specialist web dashboard
+Audit trail and model-version traceability
+
+### [Heading2] 5.2 Out of scope for initial deployment
+Autonomous medical diagnosis without specialist review
+Replacing X-ray, MRI or ultrasound diagnosis
+Clinical-grade varus/valgus measurement from a single monocular camera view
+Universal whole-body disease screening unrelated to musculoskeletal/OA assessment
+Automatic interpretation of any arbitrary medical image format without a validated imaging model
+Claims of clinical efficacy before formal validation
+Use of an LLM to diagnose OA from raw video
+
+### [Heading2] 5.3 Platform vs module distinction
+
+[TABLE]
+PLATFORMShared authentication, patient record, camera engine, pose backbone, sensor abstraction, offline storage, synchronization, reporting, analytics and protocol engine.
+[/TABLE]
+
+[TABLE]
+JOINT MODULEJoint-specific questionnaire, movement tests, landmark subset, sensor placement, signal features, ML model, thresholds, report section and clinical review workflow.
+[/TABLE]
+
+### [Heading1] 6. End-to-End Product Flow
+HEALTHCARE WORKER LOGIN      ↓PATIENT REGISTRATION      ↓FULL-BODY QUESTIONNAIRE      ↓WHOLE-BODY CAMERA SCREEN      ↓33 LANDMARKS → GAIT / POSTURE / MOVEMENT FEATURES      ↓OFFLINE TFLITE WHOLE-BODY MODEL      ↓JOINT RISK LOCALIZATION      ↓FLAGGED JOINT(S)      ↓JOINT / SIDE SELECTION      ↓TARGETED JOINT PROTOCOL      ├── Joint-specific questionnaire      ├── Targeted camera movement test      ├── Motion Pod / IMU      └── Existing imaging/report (optional)      ↓JOINT-SPECIFIC MODELS      ├── Camera temporal model      ├── IMU temporal model      └── Clinical XGBoost + SHAP      ↓CONFIDENCE-AWARE MULTIMODAL FUSION      ↓JOINT RISK / REFERRAL INDICATION      ↓PREVENTIVE GUIDANCE + DIGITAL REPORT      ↓ENCRYPTED OFFLINE STORAGE      ↓WHEN ONLINE → CLOUD SYNC → ENHANCED ANALYSIS → SPECIALIST DASHBOARD
+
+### [Heading2] 6.1 UX rule
+The system should never make the healthcare worker guess which test to perform next. Every stage is protocol-driven. Joint selection controls the subsequent questionnaire, camera instructions, sensor placement and report structure.
+
+### [Heading2] 6.2 Whole-body result semantics
+Stage 1 produces a map of potential movement-related risk markers. It is a triage mechanism for selecting what to assess next, not a whole-body OA diagnosis.
+
+### [Heading2] 6.3 Joint result semantics
+Stage 2 produces a joint-specific screening indication and referral priority. It can summarize evidence and functional indicators but should not claim a radiographic OA stage without validated imaging evidence.
+
+### [Heading1] 7. Worker Authentication and Patient Identity
+
+### [Heading2] 7.1 Worker authentication
+
+[TABLE]
+Requirement | Design
+Roles | ASHA Worker, Healthcare Worker, PHC Supervisor, Specialist/Reviewer, System Administrator
+Worker identity | Unique Worker ID provisioned by deployment authority
+Online login | Credential-based authentication with secure session/token handling
+Offline login | Securely provisioned worker identity may be validated locally for core screening; access should be device-bound and revocable on next sync
+Authorization | Role-based access; worker can access patients they are authorized to screen; specialists see assigned/authorized cases
+Audit | Record who created/edited/closed a screening and which model version generated each result
+[/TABLE]
+
+### [Heading2] 7.2 Patient identity
+At screening start, the worker enters the patient name and Aadhaar number as requested by the product workflow, plus basic demographic data. The application should immediately generate an internal Arogya Patient ID and use that ID for routine operations.
+
+[TABLE]
+Field | Use | Protection
+Arogya Patient ID | Primary application identifier | Standard internal reference
+Name | Patient-facing and clinical context | Role-based access
+Aadhaar number | Identity field where deployment policy requires it | Encrypt/tokenize; mask after entry; restrict access; avoid routine display
+Age / sex | Screening context and model feature where validated | Access controlled
+Height / weight | BMI and clinical context | Access controlled
+District / PHC | Operational and analytics grouping | Access controlled
+[/TABLE]
+
+[TABLE]
+PRIVACY DESIGNAadhaar should not become the visible longitudinal identifier. Use the generated Arogya Patient ID throughout reports, dashboards and analytics. The deployment team must confirm the exact lawful collection, retention and access policy before field rollout.
+[/TABLE]
+
+### [Heading1] 8. Stage 1 — Full-Body Questionnaire
+
+### [Heading2] 8.1 Purpose
+The first questionnaire establishes a fast baseline of symptom location, mobility limitation, broad risk context and NER-specific exposure before the movement screen. It should be short enough for community use and should not duplicate the later joint-specific validated instrument.
+
+### [Heading2] 8.2 Section A — Body pain map
+Ask where the patient currently has significant pain.
+Allow multiple selections.
+For each selected region capture side: Right / Left / Both.
+Allow “No significant pain.”
+Use a body-map interface with large touch targets.
+Treat pain location as one evidence stream, not as the Stage-1 diagnosis.
+
+### [Heading2] 8.3 Section B — General mobility
+Difficulty walking?
+Difficulty climbing stairs?
+Difficulty standing from a chair?
+Difficulty squatting?
+Difficulty sitting on the floor?
+Difficulty lifting/carrying?
+Morning stiffness?
+Subjective feeling of reduced joint movement?
+
+### [Heading2] 8.4 Section C — NER occupational/exposure profile
+
+[TABLE]
+Input | Examples / representation
+Occupation | Tea work, farming, jhum cultivation, step/terrace farming, load carrying, household work, other
+Downhill activity | Frequency / duration category
+Squatting | Hours or frequency category
+Floor sitting | Frequency category
+Head-load carrying | Method + duration category
+Steep-slope work | Frequency / duration
+Prolonged standing/walking | Duration category
+Physical workload | Low / moderate / high with defined rubric
+[/TABLE]
+
+### [Heading2] 8.5 Section D — Basic medical history
+Previous joint injury
+Previous OA diagnosis
+Previous surgery/fracture
+Diabetes
+Hypertension
+Other relevant conditions or medication context as approved by clinical advisor
+
+### [Heading2] 8.6 Section E — Basic symptom scale
+Include a simple 0–10 current-pain scale and a short functional difficulty summary. This is supplemental; when a specific joint is assessed, the appropriate validated instrument becomes the primary joint questionnaire.
+
+### [Heading1] 9. Stage 1 — Whole-Body Movement Screening Protocol
+
+### [Heading2] 9.1 Goal
+The whole-body protocol answers: “Which body region(s) show potential movement-related markers that justify a more detailed assessment?” It should be standardized enough to make the camera model data comparable across workers and devices.
+
+### [Heading2] 9.2 Test sequence
+
+[TABLE]
+Step | Activity | Primary outputs
+1 | Static standing capture | Pose quality, body alignment proxies, trunk/pelvis/knee relationship
+2 | Controlled sit-to-stand / return | Functional movement, symmetry, lower-limb mechanics
+3 | Short standardized walking sequence | Gait timing, symmetry, joint trajectories, trunk compensation
+4 | Optional simple movement sequence | Broader range-of-motion / coordination signals where protocol permits
+5 | Quality review | Pose confidence, framing, lighting and protocol adherence
+[/TABLE]
+
+### [Heading2] 9.3 Camera setup
+Use a stationary smartphone camera whenever possible.
+Guide the worker with an on-screen framing overlay.
+Require the full body to be visible for the whole-body protocol.
+Use camera/device orientation guidance and quality checks before recording.
+If pose confidence is too low, ask the worker to reposition rather than silently accepting poor data.
+
+### [Heading2] 9.4 Quality gate
+HEAD detected              ✓SHOULDERS detected        ✓HIPS detected              ✓KNEES detected             ✓ANKLES detected            ✓LIGHTING adequate          ✓FULL BODY IN FRAME         ✓POSE CONFIDENCE threshold  ✓READY TO START
+
+### [Heading2] 9.5 Stage-1 outputs
+Whole-body gait feature vector
+Whole-body posture feature vector
+Movement coordination features
+Joint-specific movement marker scores
+Per-joint data-quality indicators
+Suggested follow-up joint(s)
+Important: Stage 1 does not say “OA detected.” It says “potential joint-related movement markers detected; further assessment recommended.”
+
+### [Heading1] 10. AI Architecture — Stage 1 Whole-Body Risk Localization
+
+### [Heading2] 10.1 Perception backbone
+Primary candidate: MediaPipe BlazePose running on-device. The project also keeps YOLOv8n-pose as a benchmark/alternative where required. The selected pose engine outputs the body landmarks used by the temporal model.
+
+### [Heading2] 10.2 Landmark representation
+Video frames → 33 body landmarks / frame → normalized temporal sequenceExample joint chain:Hip → Knee → AnkleShoulder → Elbow → WristPelvis / trunk → lower-limb relationships
+
+### [Heading2] 10.3 Temporal model
+Primary architecture recommendation: a lightweight Spatial-Temporal Graph Convolutional Network (ST-GCN). The skeleton is a graph and the sequence contains time, making ST-GCN a natural fit for learning relationships across connected body landmarks and movement over time.
+
+### [Heading2] 10.4 Stage-1 model heads
+
+[TABLE]
+Head | Purpose
+Gait head | Learn whole-body walking pattern representation
+Posture head | Learn static/dynamic posture-related features
+Movement head | Learn generalized movement quality / coordination features
+Joint-score head | Produce per-joint potential risk-marker scores or screening-priority scores
+Quality head | Estimate whether the measurement is sufficiently reliable for downstream use
+[/TABLE]
+
+### [Heading2] 10.5 Stage-1 output example
+Right Knee       0.78  → Further assessment recommendedLeft Hip         0.46  → Further assessment recommendedRight Shoulder   0.61  → Further assessment recommendedOther areas      0.10–0.30  → No immediate targeted test from Stage 1
+The numerical values above are illustrative UI examples, not validated thresholds.
+
+### [Heading2] 10.6 Deployment
+The whole-body model is exported to TensorFlow Lite and quantized for mobile deployment. INT8 quantization is the target production profile where accuracy and operator/device benchmarks show acceptable degradation.
+
+### [Heading1] 11. Stage 1 — Joint Risk Localization and Decision Logic
+
+### [Heading2] 11.1 Body map
+                    AROGYA BODY MAP           HEAD / NECK     L SHOULDER   R SHOULDER          🟢          🟠       L ELBOW     R ELBOW          🟢          🟢          L HIP      R HIP          🟢          🟡         L KNEE     R KNEE          🟢          🔴        L ANKLE    R ANKLE          🟢          🟢
+
+### [Heading2] 11.2 Selection logic
+Stage 1 ranks candidate joints by risk-marker score and measurement confidence.
+The healthcare worker reviews the body map and selects one or more areas for detailed assessment.
+The app loads the selected joint protocol and laterality.
+The worker may defer a flagged joint if the patient declines or the protocol is not suitable; the reason is recorded.
+If no joint exceeds the deployment-specific follow-up threshold, the app completes a low-intensity screening report and preventive guidance path.
+
+### [Heading2] 11.3 Why human confirmation remains in the loop
+The system is a screening assistant, not an autonomous diagnosis engine. A healthcare worker confirms which flagged joint to assess further, ensuring patient-reported symptoms, obvious injury, context and practical feasibility are considered before attaching hardware or conducting a targeted test.
+
+### [Heading1] 12. Joint Protocol Engine — Scalable Multi-Joint Architecture
+
+### [Heading2] 12.1 Generic protocol object
+JointProtocol├── joint_id├── supported_sides├── clinical_questionnaire├── camera_setup├── movement_tests├── landmark_subset├── wearable_placement├── sensor_channels├── feature_pipeline├── local_model├── cloud_model├── risk_logic├── report_template└── safety / contraindication checks
+
+### [Heading2] 12.2 Initial joint roadmap
+
+[TABLE]
+Joint | MVP status | Representative targeted assessment
+Knee | Primary end-to-end module | WOMAC; flexion/extension; ROM; sit-to-stand; gait; thigh/shin IMU
+Hip | Platform-ready design | Hip ROM; gait; pelvis/trunk compensation; hip/thigh IMU
+Shoulder | Platform-ready design | Flexion/abduction; movement symmetry; arm/torso IMU; shoulder questionnaire
+Ankle | Platform-ready design | Dorsiflexion/plantarflexion; gait/balance features; shank/foot configuration
+Elbow | Future module | Flexion/extension; forearm/upper-arm configuration
+Wrist | Future module | Flexion/extension/deviation; forearm/hand configuration
+[/TABLE]
+
+### [Heading2] 12.3 Joint selection UX
+Where would you like to perform a detailed assessment?🦵 RIGHT KNEE   🦵 LEFT KNEE   🦴 HIP💪 SHOULDER     💪 ELBOW       ✋ WRIST🦶 ANKLEFor the selected joint:RIGHT / LEFT / BOTH
+The same underlying app, patient record and sensor abstraction should serve every joint. The selected protocol controls what the worker sees next.
+
+### [Heading1] 13. Stage 2 — Targeted Joint Assessment (Primary Knee Module)
+
+### [Heading2] 13.1 Entry condition
+Stage 2 starts only after a joint is selected from the Stage-1 output or manually chosen by the healthcare worker based on symptoms/context.
+
+### [Heading2] 13.2 Knee protocol
+
+[TABLE]
+Step | Action | Data
+A | Confirm right/left/both knee | Laterality
+B | WOMAC / knee-specific questionnaire | Pain, stiffness, function
+C | Camera setup | Side view / standardized posture as appropriate
+D | Targeted movement | Knee flexion/extension, ROM, functional task
+E | Sit-to-stand | Functional movement features
+F | Short gait capture | Symmetry and gait features
+G | Attach Motion Pod | Thigh + shin configuration when dual-pod protocol is used
+H | IMU capture | Acceleration + gyroscope sequence
+I | Optional imaging/report | Attach existing evidence
+J | AI fusion | Clinical + camera + sensor + optional evidence
+K | Result | Risk indication + referral + guidance
+[/TABLE]
+
+### [Heading2] 13.3 Primary knee features
+Maximum and minimum knee angle observed during the standardized movement
+Range of motion estimate
+Knee-angle trajectory over time
+Movement velocity and transition duration
+Left/right asymmetry when both sides are assessed
+Gait timing and asymmetry proxies
+Sit-to-stand movement characteristics
+Sensor-derived relative thigh/shin motion where supported
+
+### [Heading2] 13.4 Varus/valgus caution
+Frontal-plane alignment and varus-thrust signals can be included as secondary research features, but monocular 2D estimation is inherently more sensitive to camera placement, clothing and occlusion. They should not dominate the primary risk model until benchmarked and validated.
+
+### [Heading1] 14. Portable Hardware — Arogya Motion Pod
+
+### [Heading2] 14.1 Hardware philosophy
+The wearable is not a knee-only device. It is a small reusable sensing pod that can be strapped around the relevant body segment for the selected joint. The physical hardware remains substantially the same; the placement protocol changes by joint.
+
+### [Heading2] 14.2 Prototype BOM
+
+[TABLE]
+Component | Role
+ESP32-S3 | Microcontroller, sampling/processing and BLE communication
+MPU-6050 | 6-axis IMU: 3-axis accelerometer + 3-axis gyroscope
+3.7 V 500 mAh Li-Po | Rechargeable field power
+TP4056 USB-C charging module | Charging circuit
+Neoprene compression strap | Body attachment
+3D-printed ABS enclosure | Sensor protection / housing
+BLE | Wireless link to the mobile app
+[/TABLE]
+
+Prototype BOM estimate from the project specification: approximately ₹570, excluding the smartphone, manufacturing overhead, clinical-grade packaging, certification and deployment support.
+
+### [Heading2] 14.3 Single vs dual pod
+
+[TABLE]
+Configuration | Use
+Single pod | Lower-cost demonstrator; captures local segment motion features
+Dual pod | Preferred final knee configuration; one pod on proximal segment and one on distal segment to estimate relative joint motion
+Modular repositioning | Reuse the same pod hardware for hip/shoulder/ankle/elbow/wrist protocols as validated
+[/TABLE]
+
+KNEE DUAL-PODTHIGH      [IMU #1]  │ KNEE  │SHIN       [IMU #2]BLE → Smartphone
+
+### [Heading2] 14.4 Sampling and signal target
+The current project specification targets BLE streaming at 50 Hz. Feature engineering and final sampling requirements must be confirmed experimentally for each protocol. The wearable should expose raw accelerometer and gyroscope channels plus device quality metadata.
+
+### [Heading1] 15. Wearable Signal Processing and Sensor Quality
+
+### [Heading2] 15.1 Core features
+Acceleration magnitude / Euclidean norm for orientation-robust activity intensity representation
+Angular velocity features
+Segment-relative motion when dual IMUs are used
+Movement duration and peak values
+Gait-cycle timing proxies
+Signal quality / dropouts / saturation indicators
+
+### [Heading2] 15.2 Rotation robustness
+Acc_magnitude = sqrt(Acc_x^2 + Acc_y^2 + Acc_z^2)
+Euclidean acceleration magnitude can reduce dependence on sensor orientation for selected features, but it does not make the complete biomechanical signal “100% immune” to placement errors. Directional features and joint-angle estimates still depend on correct attachment and calibration.
+
+### [Heading2] 15.3 Crepitus / vibration feature
+High-frequency vibration variance is retained as an exploratory auxiliary signal rather than a core OA decision feature. The IMU is not, by itself, a validated crepitus diagnostic instrument. Any crepitus-related model must be separately benchmarked against clinical reference data.
+
+### [Heading2] 15.4 Sensor quality engine
+Camera quality      ─┐IMU quality          ─┼→ modality confidenceProtocol adherence   ─┤Data completeness    ─┘                         ↓                Confidence-aware fusion
+
+### [Heading2] 15.5 Graceful degradation
+If camera confidence is low, the system may rely more heavily on validated wearable/clinical features. If IMU quality is poor, the system can fall back to camera + clinical evidence. The exact fusion behavior should be learned/calibrated from validation data rather than fixed at arbitrary percentages.
+
+### [Heading1] 16. Optional Medical Imaging and Existing Records
+
+### [Heading2] 16.1 User experience
+Existing medical evidence?[ YES ]   [ NO ]If YES:[ Upload X-ray ] [ Upload Ultrasound ] [ Upload MRI ] [ Upload Report ]
+
+### [Heading2] 16.2 MVP role
+For the initial SIH system, existing imaging and clinician reports should be treated primarily as supporting evidence and specialist-review attachments. The core field triage does not depend on imaging.
+
+### [Heading2] 16.3 Future imaging AI
+A dedicated imaging model may be added later for specific validated modalities and joint types. Candidate lightweight architectures can be evaluated during a separate imaging R&D track, but the product should not promise automatic interpretation of arbitrary medical images until appropriate datasets, labeling, validation and clinical oversight exist.
+
+### [Heading2] 16.4 Mobile camera vs X-ray/ultrasound
+
+[TABLE]
+HARDWARE FACTA standard RGB smartphone camera cannot capture X-rays or perform diagnostic ultrasound. The phone camera provides visible-light body landmarks and motion analysis. Ultrasound requires a dedicated transducer/probe; radiography requires X-ray hardware. Arogya-NER therefore treats imaging as optional external evidence unless dedicated imaging hardware is explicitly integrated.
+[/TABLE]
+
+### [Heading1] 17. AI Architecture — Stage 2 Joint-Specific Multimodal Model
+
+### [Heading2] 17.1 Branch A — Camera temporal model
+Use a lightweight temporal model such as a Temporal Convolutional Network (TCN) or 1D-CNN over joint-specific pose-derived features. For the knee, the main sequence is based on relevant landmarks and derived angle/trajectory features rather than the entire raw frame.
+
+### [Heading2] 17.2 Branch B — Wearable temporal model
+Use a compact 1D-CNN/TCN over accelerometer and gyroscope sequences. When dual IMUs are used, combine proximal and distal signals and derive relative motion features before the temporal encoder.
+
+### [Heading2] 17.3 Branch C — Clinical model
+Primary tabular model: XGBoost. Candidate benchmark: LightGBM. Explanation: SHAP feature contributions. Inputs include the selected joint questionnaire, general patient context and only those NER-specific exposure variables that are validated for the relevant task.
+
+### [Heading2] 17.4 Optional Branch D — Imaging
+When a validated imaging model exists for the target modality and joint, it becomes an optional fourth branch. Otherwise, imaging remains a specialist attachment rather than a numeric input to fusion.
+
+### [Heading2] 17.5 Fusion
+Initial fusion model: calibrated logistic regression. Future option: small MLP when data volume supports it. Inputs are branch scores/features plus modality confidence/quality signals.
+Camera temporal score ────────┐IMU temporal score ───────────┤Clinical XGBoost score ───────┼→ Calibrated fusion → joint resultOptional imaging evidence ────┤Modality quality/confidence ──┘
+
+### [Heading2] 17.6 Why not one giant multimodal model?
+Lower device and data requirements
+Easier debugging and validation by modality
+Graceful degradation when a sensor is unavailable
+More transparent explanations
+Easier extension to new joints
+Better fit for offline TFLite deployment
+
+### [Heading1] 18. Offline Edge AI and Online Cloud AI
+
+### [Heading2] 18.1 Offline mode
+ANDROID DEVICECamera → Pose → TFLite Stage-1 → Joint Risk MapTarget Joint → Camera/IMU/Clinical → TFLite Stage-2 → Result→ Encrypted local storage→ Local PDF report→ Sync queue
+
+### [Heading2] 18.2 Online mode
+Encrypted local record      ↓FastAPI gateway      ↓PostgreSQL      ↓Cloud analysis services      ↓Stronger / larger models where validated      ↓Specialist dashboard      ↓Enhanced analysis linked to original field screening
+
+### [Heading2] 18.3 Model switching policy
+
+[TABLE]
+Condition | Behavior
+No internet | Run quantized TFLite models only; store result locally
+Internet available before screening | Optionally upload/download needed model/configuration subject to policy; still retain local fallback
+Internet becomes available after screening | Upload encrypted unsynced record; run cloud enhancement; store new analysis as a separate version
+Cloud unavailable | Continue local screening; never block patient assessment
+Model mismatch/version issue | Use compatible local model; sync only records with explicit model version metadata
+[/TABLE]
+
+### [Heading2] 18.4 Result versioning
+The database must retain the original offline field result and any later cloud-enhanced result. Cloud processing must not silently overwrite the historical field result.
+Screening #182Edge result:     Moderate riskCloud result:    Moderate riskEdge model:      v0.8Cloud model:     v1.4Timestamp(s):    recorded separately
+
+### [Heading1] 19. Mobile Application Product Requirements
+
+### [Heading2] 19.1 Primary navigation
+
+[TABLE]
+Screen | Purpose
+Login | Worker authentication
+Home | New screening, drafts, recent screenings, sync status
+Patient registration | Basic data + Arogya Patient ID
+Whole-body questionnaire | Pain map, mobility, exposure, medical context
+Whole-body screening | Camera protocol and quality gate
+Body risk map | Potential joint markers and follow-up recommendations
+Joint assessment | Joint-specific protocol, side selection, tests
+Wearable | Pairing, placement, calibration, live quality
+Imaging/evidence | Attach existing image/report
+Result | Joint risk, explanation, referral, guidance
+Report | PDF generation/share/print where authorized
+History | Search/filter patient records
+Settings | Language, device, sync, worker profile
+[/TABLE]
+
+### [Heading2] 19.2 UX principles
+Under 5 primary actions/taps per major field step where practical
+Large touch targets
+Icon-first controls
+Very little free-text entry
+Clear “NEXT” action
+Color is supplementary; use text/icons for risk state
+Voice/TTS option for questionnaire items
+Visible offline/online status
+Never hide a failed quality check
+
+### [Heading2] 19.3 Accessibility
+Readable typography and high contrast
+Regional language strings reviewed by native speakers
+Audio prompts for questions where validated
+Simple visual body map
+Haptic feedback for hardware pairing/placement status where supported
+
+### [Heading1] 20. Multilingual Architecture
+
+### [Heading2] 20.1 Supported language roadmap
+
+[TABLE]
+Language | Stage
+English | Core
+Hindi | Core expansion
+Assamese | Initial NER prototype
+Bengali | Planned expansion
+Manipuri | Planned expansion
+Khasi | Planned expansion
+Garo | Planned expansion
+Mizo | Planned expansion
+Nagamese | Planned expansion
+[/TABLE]
+
+### [Heading2] 20.2 Localization architecture
+UI key → locale string → optional audio prompt → native-speaker reviewClinical questionnaire strings must be versioned separately from ordinary UI strings.
+
+### [Heading2] 20.3 TTS
+TTS is an accessibility layer, not a medical reasoning engine. Voice prompts should be pre-approved for the exact questionnaire text and language. Where dialect support is not yet validated, use the closest supported language rather than implying full dialect coverage.
+
+### [Heading1] 21. Data Architecture
+
+### [Heading2] 21.1 Core entities
+
+[TABLE]
+Entity | Key fields
+Worker | worker_id, role, PHC, district, credential metadata
+Patient | arogya_patient_id, protected identity fields, name, age, sex, height, weight, district
+Screening | screening_id, patient_id, worker_id, timestamps, protocol_version, status
+Stage1Assessment | questionnaire answers, pose features, gait/posture features, joint scores, quality
+JointAssessment | joint, side, protocol version, questionnaire results, movement features, sensor features, imaging metadata
+AIResult | edge/cloud model version, branch scores, confidence, fused result, explanation metadata
+Report | report_id, screening_id, generated_at, report version
+SyncQueue | record hash/id, sync status, retry count, last error
+AuditEvent | actor, timestamp, action, record id, device/session metadata
+[/TABLE]
+
+### [Heading2] 21.2 Local storage
+Recommended: SQLite protected with SQLCipher or an equivalent platform-approved database encryption layer. Data should be encrypted at rest and keys should be protected using platform secure storage. Local data should be minimized, and raw video should not be retained by default.
+
+### [Heading2] 21.3 Cloud storage
+Recommended reference stack: FastAPI gateway + PostgreSQL. The cloud tier stores synchronized structured data, reports, metadata and authorized attachments. The web dashboard consumes APIs rather than accessing the database directly.
+
+### [Heading1] 22. API and Integration Design
+
+### [Heading2] 22.1 Mobile APIs
+
+[TABLE]
+Method | Endpoint | Purpose
+POST | /api/auth/login | Worker login/token/session
+POST | /api/patients | Create patient record
+GET | /api/patients/{id} | Retrieve authorized patient
+POST | /api/screenings | Create screening
+GET | /api/screenings | List authorized screening records
+GET | /api/screenings/{id} | Get screening detail
+POST | /api/screenings/{id}/stage1 | Upload/sync Stage-1 structured result
+POST | /api/screenings/{id}/joint | Upload/sync targeted joint result
+POST | /api/sync/batch | Store-and-forward batch synchronization
+GET | /api/sync/config | Retrieve approved model/config metadata
+[/TABLE]
+
+### [Heading2] 22.2 Specialist APIs
+
+[TABLE]
+Method | Endpoint | Purpose
+GET | /api/dashboard/summary | District/PHC screening summary
+GET | /api/referrals | Referral queue
+GET | /api/patients/{id}/timeline | Longitudinal history
+GET | /api/reports/{id} | Retrieve report
+POST | /api/reviews/{screening_id} | Specialist review/annotation
+POST | /api/attachments | Authorized imaging/report attachment
+[/TABLE]
+
+### [Heading2] 22.3 API principles
+Versioned APIs
+Idempotent batch sync
+Explicit model/protocol version fields
+No raw-video upload by default
+Strong authorization checks on every patient endpoint
+Structured error codes for offline retry logic
+
+### [Heading1] 23. Web Specialist and Analytics Dashboard
+
+### [Heading2] 23.1 Dashboard modules
+
+[TABLE]
+Module | Key functions
+Overview | Total screenings, risk distribution, referrals, sync/device health
+Referral queue | Filter by district, PHC, risk, joint, date, status
+Patient detail | Patient history, questionnaire, movement trends, sensor features, reports
+Movement view | Knee-angle curves, gait features, sensor traces where available
+Case review | Specialist notes, review status, attachment access
+Analytics | Screening volume, follow-up completion, referral trends
+Worker/PHC view | Workload, incomplete assessments, data quality
+Model monitoring | Model version counts, confidence distributions, data-quality failures
+[/TABLE]
+
+### [Heading2] 23.2 Specialist view principle
+The dashboard presents AI output as decision support. A specialist should be able to see the evidence underlying the result rather than only a single risk label.
+
+### [Heading1] 24. Reporting and Patient Communication
+
+### [Heading2] 24.1 Field report
+
+[TABLE]
+Section | Content
+Patient | Arogya Patient ID, masked identity where appropriate, date/time
+Worker/site | Worker ID/name and PHC/site according to authorization
+Initial screen | Pain map, mobility summary, broad risk context
+Whole-body screen | Potential joint markers and confidence/data quality
+Targeted joint | Joint, side, questionnaire summary, movement/sensor findings
+AI result | Risk indication, evidence contributors, model version
+Referral | Recommended next action and urgency category
+Preventive guidance | Plain-language joint care, activity, lifestyle and ergonomics guidance
+Disclaimer | Screening support; not a standalone diagnosis
+[/TABLE]
+
+### [Heading2] 24.2 Explanation example
+RIGHT KNEE — SCREENING SUMMARYPotential contributors identified:• Higher reported symptom burden• Reduced movement range in the standardized task• Elevated movement asymmetry indicator• Occupational exposure profile requiring contextual reviewOverall screening indication: HIGHER PRIORITY FOR FURTHER ASSESSMENTRecommended action: SPECIALIST / PHC REVIEW ACCORDING TO LOCAL PROTOCOL
+
+### [Heading2] 24.3 GenAI communication layer
+A small on-device or cloud language model can transform approved structured outputs into a SOAP-style clinician summary and plain-language preventive guidance. The prompt must constrain the model to the provided facts and approved knowledge base and must forbid unsupported diagnoses or treatment prescriptions.
+
+### [Heading1] 25. Security, Privacy and Governance
+
+### [Heading2] 25.1 Security controls
+Worker authentication and role-based authorization
+Protected local database
+Encrypted transport when syncing
+Secure key storage on device
+Arogya Patient ID used as operational identifier
+Aadhaar masked/restricted and encrypted/tokenized where retained
+Consent capture and timestamp
+Audit trail for screening and review changes
+No raw video retention by default
+Attachment access controlled by role
+Model/version traceability
+Remote revocation of worker access when connectivity returns
+
+### [Heading2] 25.2 Privacy-by-design data flow
+RAW VIDEO   ↓POSE ESTIMATION   ↓DERIVED LANDMARKS / FEATURES   ↓MODEL INFERENCE   ↓STORE STRUCTURED RESULT   ↓DISCARD RAW VIDEO (default)
+
+### [Heading2] 25.3 Data retention
+Retention periods should be configurable by deployment authority and clinical governance. The product should support record deletion/anonymization workflows where policy permits. The PRD intentionally avoids asserting a single legal retention period because that depends on deployment, consent and applicable policy.
+
+### [Heading1] 26. AI Data Strategy and Validation
+
+### [Heading2] 26.1 Development datasets
+Initial model development may use public OA/movement datasets identified for the relevant tasks, including OAI, MOST and appropriate public knee-OA datasets, but these datasets are not a substitute for NER-specific validation.
+
+### [Heading2] 26.2 NER validation dataset
+Participant  ├── Demographics / context  ├── Whole-body motion sequences  ├── Joint-specific motion sequences  ├── Wearable data (where applicable)  ├── Questionnaire responses  ├── Clinical assessment / specialist label  └── Imaging where clinically available                 ↓        TRAIN / VALIDATE / TEST
+
+### [Heading2] 26.3 Label strategy
+The exact target label for each module must be clinically defined before training. Labels may be specialist assessment categories, validated screening outcomes, functional severity categories, or radiographic reference grades when appropriate. The platform should not force a KL-grade prediction target simply because an imaging dataset is available.
+
+### [Heading2] 26.4 Metrics
+
+[TABLE]
+Metric family | Purpose
+Sensitivity / recall | Avoid missing high-priority cases
+Specificity | Avoid excessive referral burden
+PPV / precision | Understand practical referral yield
+Calibration | Check whether risk scores reflect observed rates
+ROC/PR curves | Threshold analysis where appropriate
+Confusion matrix | Class-level error understanding
+MAE/RMSE | For continuous movement/angle measurements
+Inter-rater / test-retest | Protocol and measurement stability
+Subgroup performance | Device, age, sex, clothing, language/site where data supports it
+[/TABLE]
+
+### [Heading2] 26.5 No unmeasured claims
+
+[TABLE]
+MODEL CLAIM RULEA model can be called “validated” only after a predefined validation protocol has been completed and results are documented. Until then use “prototype,” “target,” “development,” or “validation in progress.”
+[/TABLE]
+
+### [Heading1] 27. ML Engineering Lifecycle
+DATA INGESTION      ↓QUALITY FILTERING      ↓ANNOTATION / CLINICAL LABELING      ↓TRAIN / VALIDATE / TEST SPLIT      ↓BASELINE MODELS      ↓MODEL COMPARISON      ↓CALIBRATION      ↓QUANTIZATION      ↓ON-DEVICE BENCHMARK      ↓PILOT VALIDATION      ↓MODEL RELEASE WITH VERSION + METRICS
+
+### [Heading2] 27.1 Recommended model progression
+Stage 1 baseline: engineered features + simple classifier to establish a benchmark before ST-GCN.
+Stage 1 production candidate: lightweight ST-GCN with confidence head.
+Stage 2 camera baseline: 1D-CNN/TCN over engineered movement features.
+Stage 2 IMU baseline: engineered sensor features + shallow classifier.
+Clinical model: XGBoost + SHAP.
+Fusion baseline: calibrated logistic regression.
+Only after enough data: compare small MLP fusion and deeper temporal models.
+Export the approved edge models to TFLite INT8 and benchmark accuracy, latency, memory and battery impact.
+
+### [Heading2] 27.2 Model versioning
+Every AI result must store the model identifier, version, protocol version, device/app version and timestamp. A model update must not invalidate historical results or silently alter prior records.
+
+### [Heading1] 28. Detailed Functional Requirements
+
+[TABLE]
+ID | Area | Requirement
+FR-01 | Worker login | System shall authenticate an authorized healthcare worker and load role/site permissions.
+FR-02 | Offline worker access | Core screening shall remain usable offline for provisioned workers.
+FR-03 | Patient ID | System shall create a unique Arogya Patient ID for each patient record.
+FR-04 | Protected identity | Aadhaar, if collected, shall be encrypted/protected and masked in routine UI.
+FR-05 | Consent | System shall capture consent/status before storing identifiable screening data.
+FR-06 | Whole-body questionnaire | System shall collect pain location, mobility, relevant medical context and NER exposure fields.
+FR-07 | Camera quality | System shall verify basic framing/pose quality before Stage-1 capture.
+FR-08 | 33 landmarks | System shall extract the configured pose representation for supported devices.
+FR-09 | Stage-1 inference | System shall produce joint-wise potential risk-marker outputs locally.
+FR-10 | Body map | System shall visualize candidate areas and allow worker confirmation.
+FR-11 | Protocol engine | System shall load the protocol for the selected joint and side.
+FR-12 | Questionnaire | System shall load the appropriate joint-specific validated questionnaire.
+FR-13 | Wearable pairing | System shall pair with the Motion Pod through BLE and show connection quality.
+FR-14 | Sensor capture | System shall capture configured IMU channels and metadata.
+FR-15 | Imaging attachment | System shall allow authorized attachment of existing imaging/reports.
+FR-16 | Joint inference | System shall combine available evidence and produce a joint screening indication.
+FR-17 | Explainability | System shall show key structured contributors and data-quality caveats.
+FR-18 | Report | System shall generate a digital/PDF summary.
+FR-19 | Local persistence | System shall persist the screening locally when offline.
+FR-20 | Sync | System shall retry unsynced records when connectivity returns.
+FR-21 | Cloud enhancement | System may run a stronger cloud model and retain the new result as a separate version.
+FR-22 | Dashboard | Authorized specialists shall view cases, trends, reports and referrals.
+FR-23 | Localization | System shall support versioned UI/questionnaire translations.
+FR-24 | Audit | System shall record critical create/update/review events.
+FR-25 | Safety | System shall present the screening-not-diagnosis notice at result/report boundaries.
+[/TABLE]
+
+### [Heading1] 29. Non-Functional Requirements
+
+[TABLE]
+Category | Requirement / target
+Offline availability | Core screening, risk localization, targeted assessment and report generation work without network access after authorized device provisioning.
+Latency | Whole-body inference and targeted inference should feel interactive on the lowest supported device; exact targets to be benchmarked per hardware tier.
+Battery | Wearable and phone workflow should support a practical field shift; battery benchmark required.
+Reliability | Failed sensor/camera capture must produce an actionable retry message, not a silent failure.
+Security | Encrypt local sensitive data and protect keys with platform secure storage.
+Scalability | Cloud services should separate API, storage, model inference and dashboard layers.
+Observability | Log model version, protocol version, quality failures and sync status without storing raw video by default.
+Usability | The worker should be able to execute a normal workflow with minimal text and guided steps.
+Accessibility | High contrast, large controls, language and audio support where validated.
+Maintainability | Joint protocols and models must be configuration-driven rather than hard-coded into a single screen.
+Data integrity | Sync must be idempotent and preserve historical result versions.
+Clinical safety | High-risk or ambiguous cases route to local clinical review according to deployment protocol.
+[/TABLE]
+
+### [Heading1] 30. Development Roadmap — Step-by-Step Project Progress
+
+### [Heading2] Phase 0 — Product and clinical freeze
+Freeze terminology: screening/risk/referral, not diagnosis.
+Freeze joint-protocol abstraction.
+Freeze worker roles and patient identity scheme.
+Define exact SIH demo scope.
+Agree clinical advisor review points.
+
+### [Heading2] Phase 1 — Mobile foundation
+Flutter/Android shell and navigation
+Worker login
+Offline session
+Patient registration
+Arogya Patient ID
+Protected local DB
+Language framework
+Sync status
+
+### [Heading2] Phase 2 — Full-body questionnaire
+Pain body map
+Mobility questions
+NER exposure profile
+Basic medical context
+BMI calculation
+Consent capture
+Draft save / resume
+
+### [Heading2] Phase 3 — Whole-body camera engine
+MediaPipe integration
+33 landmark pipeline
+Camera quality gate
+Static posture capture
+Sit-to-stand capture
+Walking capture
+Feature extraction
+
+### [Heading2] Phase 4 — Stage-1 AI
+Dataset preparation
+Baseline classifier
+Lightweight ST-GCN experiment
+Joint-risk localization head
+Confidence head
+TFLite conversion/quantization
+Mobile benchmark
+
+### [Heading2] Phase 5 — Motion Pod hardware
+ESP32-S3 firmware
+MPU-6050 sampling
+BLE packet format
+Battery/charging
+3D enclosure + strap
+Mobile pairing
+Sensor calibration
+Quality checks
+
+### [Heading2] Phase 6 — Knee targeted module
+Right/left/both workflow
+WOMAC
+Knee camera protocol
+ROM/flexion features
+Sit-to-stand
+Gait
+Dual-IMU configuration
+IMU temporal model baseline
+
+### [Heading2] Phase 7 — Multimodal fusion
+Clinical XGBoost + SHAP
+Camera branch
+IMU branch
+Confidence-aware fusion
+Result screen
+Referral action
+PDF report
+
+### [Heading2] Phase 8 — Cloud and specialist portal
+FastAPI
+PostgreSQL
+Batch sync
+Cloud inference
+Specialist dashboard
+Patient timeline
+Review workflow
+Analytics
+
+### [Heading2] Phase 9 — Pilot and validation
+Device benchmark
+Protocol repeatability
+Clinical review
+NER pilot dataset
+Model validation
+Threshold/calibration review
+Language usability validation
+
+### [Heading2] Phase 10 — Multi-joint expansion
+Hip protocol
+Shoulder protocol
+Ankle protocol
+Elbow protocol
+Wrist protocol
+Joint-specific models as data allows
+
+### [Heading1] 31. Milestones and Exit Criteria
+
+[TABLE]
+Milestone | Exit criterion
+M0 Product freeze | PRD, architecture, terminology and safety boundaries approved
+M1 Mobile foundation | Worker can log in and create a protected offline patient record
+M2 Questionnaire | Complete initial questionnaire and save/resume offline
+M3 Whole-body CV | Stable 33-landmark capture with quality gate on target device
+M4 Stage-1 AI | Joint-risk localization model runs offline and logs model version
+M5 Hardware | Motion Pod pairs reliably and streams sensor data
+M6 Knee protocol | Worker can complete targeted knee assessment end-to-end
+M7 Fusion | Clinical + camera + IMU result generated with explanation metadata
+M8 Cloud | Unsynced records synchronize and remain versioned
+M9 Specialist portal | Authorized reviewer can review case and report
+M10 SIH demo | Offline end-to-end demo runs without failure on demonstration hardware
+M11 Pilot validation | Predefined validation protocol completed and results documented
+[/TABLE]
+
+### [Heading1] 32. Test Strategy and Acceptance Criteria
+
+### [Heading2] 32.1 Software tests
+Unit tests for scoring, BMI, questionnaire validation and protocol routing
+Integration tests for camera → feature → model pipeline
+BLE pairing and reconnect tests
+Offline/online transition tests
+Sync idempotency tests
+Authorization tests
+Report generation tests
+
+### [Heading2] 32.2 AI tests
+Data leakage checks between train/validation/test sets
+Model robustness to camera angle/lighting/device variation
+Confidence calibration
+False-negative analysis for high-priority cases
+Subgroup analysis where sample size supports it
+Quantization drift analysis
+CPU/GPU latency and memory benchmarks
+
+### [Heading2] 32.3 Hardware tests
+Battery endurance
+BLE range in expected field conditions
+Sensor dropout handling
+Sampling-rate stability
+Charging safety
+Mechanical strap stability
+Repeatability across placements
+Data loss on phone disconnect
+
+### [Heading2] 32.4 Protocol tests
+Worker can correctly set up camera without expert assistance
+Full-body frame can be achieved across target room sizes
+Joint protocol instructions are unambiguous
+Test duration is acceptable in outreach settings
+Repeat test produces reasonably consistent features before clinical validation
+
+### [Heading2] 32.5 Acceptance criteria for SIH demo
+Worker logs in without internet.
+Patient is registered and gets an Arogya Patient ID.
+Whole-body questionnaire completes offline.
+33-landmark camera screening runs live.
+Body risk map displays at least the implemented joint markers.
+Knee can be selected and targeted protocol begins.
+Motion Pod connects and produces a live signal.
+WOMAC is completed and scored.
+Fusion produces a clearly labeled screening result.
+PDF report is generated offline.
+After internet returns, record syncs to the cloud and appears in the specialist dashboard.
+
+### [Heading1] 33. Risks, Weaknesses and Mitigation
+
+[TABLE]
+Risk / weakness | Impact | Mitigation
+No NER-specific labelled dataset | High | Treat public data as development data; run NER pilot/clinical validation before performance claims
+Monocular varus/valgus estimation noisy | High | Make knee flexion/ROM/gait primary; require standardized frontal capture for secondary alignment features
+Pose degradation in low light / clothing | High | Quality gate; device benchmark; confidence-aware modality fusion; field protocol
+Wearable placement variation | Medium/High | Clear placement guide; calibration; quality score; dual-pod protocol where needed
+Crepitus signal not clinically validated | Medium | Keep as research/auxiliary feature until validated
+KL-grade temptation | High | Do not expose as clinical grade without radiographic labels and validation
+Aadhaar sensitivity | High | Minimal collection; encryption/tokenization; use Arogya Patient ID operationally
+Small dataset for deep models | High | Use lightweight models, strong baselines, transfer learning where appropriate, careful cross-validation
+Cloud model differs from edge model | Medium | Model versioning; show edge vs cloud result separately
+Over-referral | Medium | Calibrate thresholds and evaluate referral workload in pilot
+Under-referral | High | Prioritize sensitivity for high-priority cases and monitor false negatives
+Multilingual mistranslation | Medium | Native-speaker review, versioned clinical strings, TTS QA
+Worker burden too high | Medium | Protocol-driven UI, short tests, minimal typing, optional wearable only after Stage 1
+Competitive differentiation | Medium | Lead with NER-specific exposure context, whole-body localization + targeted multimodal workflow, offline explainability, not generic “AI diagnosis” claims
+[/TABLE]
+
+### [Heading1] 34. Product Strengths and Known Limitations
+
+### [Heading2] 34.1 Strengths
+Two-stage architecture minimizes unnecessary hardware use
+Whole-body movement screening is aligned to the broader SIH wording around joint movement, gait and posture
+Reusable sensor hardware supports multiple joints
+Offline-first design directly fits remote deployment
+Explainable ML stack rather than one black-box model
+Clinical, biomechanical and contextual evidence are kept separate until fusion
+Longitudinal digital records enable follow-up
+Privacy-by-design avoids routine raw-video retention
+Architecture can expand from knee to hip, shoulder, ankle, elbow and wrist
+
+### [Heading2] 34.2 Known limitations
+The whole-body AI must be trained and clinically validated to localize real joint risk markers
+Stage-1 movement abnormality is not equivalent to OA
+Sensor vibration is not a standalone OA diagnostic signal
+A smartphone camera cannot replace imaging
+Clinical thresholds and referral policies need local governance
+Performance may vary across phones, clothing, lighting and operator technique
+NER-specific model validity remains unproven until locally collected data is available
+
+### [Heading1] 35. SIH Demonstration Storyboard
+
+### [Heading2] 35.1 5-minute demo
+Worker logs into the mobile app while the phone is offline.
+Enter patient name and protected identity field; system creates Arogya Patient ID.
+Complete quick full-body pain/mobility/exposure questionnaire.
+Run live whole-body camera screen; show 33-landmark overlay and gait/posture analysis.
+Display the body risk map; select a flagged right knee.
+Run knee-specific WOMAC and attach the Motion Pod.
+Perform short targeted movement/gait test while sensor data appears live.
+Show multimodal fusion result with evidence contributors and a referral recommendation.
+Generate a PDF report offline.
+Turn connectivity back on; sync the case; open the specialist web dashboard and show the patient timeline and synced analysis.
+
+### [Heading2] 35.2 What to say to judges
+“Stage 1 asks WHERE should we investigate?Stage 2 asks WHAT do we know about that joint?The phone provides whole-body movement context.The wearable adds targeted biomechanics.The questionnaire adds symptoms and exposures.Optional medical evidence can be attached.The result is an explainable screening and referral indication, not a standalone diagnosis.The core workflow continues to work without internet.”
+
+### [Heading1] 36. Final Canonical Architecture
+                         AROGYA-NER              MULTI-JOINT OA SCREENING PLATFORM                              │                    HEALTHCARE WORKER LOGIN                              │                     PATIENT REGISTRATION                Name + protected identity + basics                              │                    FULL-BODY QUESTIONNAIRE                Pain map + mobility + NER context                              │                 WHOLE-BODY CAMERA SCREEN                              │                     33 POSE LANDMARKS                              │               GAIT + POSTURE + MOVEMENT                              │                QUANTIZED TFLITE MODEL                              │                  JOINT RISK LOCALIZATION                              │          ┌───────────────────┼────────────────────┐          ▼                   ▼                    ▼       RIGHT KNEE          LEFT HIP          RIGHT SHOULDER          │          ▼       SELECT / CONFIRM TARGET JOINT          │          ▼       JOINT-SPECIFIC PROTOCOL          │   ┌──────┼──────────┬─────────────┐   ▼      ▼          ▼             ▼Question  Camera     IMU        Existing imaging   │      │          │             │   └──────┼──────────┼─────────────┘          ▼      JOINT FEATURE ENGINE          │   ┌──────┼───────────┐   ▼      ▼           ▼ Clinical Camera     Sensor XGBoost  TCN/1D      TCN/1D +SHAP   │      │           │   └──────┼───────────┘          ▼   CONFIDENCE-AWARE FUSION          │   ┌──────┴────────┐   ▼               ▼TFLite edge     Cloud model   │               │   └──────┬────────┘          ▼     JOINT SCREENING RESULT          │    LOW / MODERATE / HIGH          │      REFERRAL SUPPORT          │   PREVENTIVE GUIDANCE          │        REPORT          │   ENCRYPTED LOCAL DB          │      INTERNET RETURNS          ▼       CLOUD SYNC          │    SPECIALIST DASHBOARD
+
+[TABLE]
+CANONICAL AI HIERARCHYWhole-body model = WHERE should we investigate?  |  Joint-specific multimodal model = WHAT is the screening status of that selected joint?  |  Structured explanation layer = WHY and WHAT NEXT?
+[/TABLE]
+
+### [Heading1] 37. Appendix — Example Knee Protocol Data Contract
+KneeAssessment {  screening_id,  joint: "knee",  side: "right|left|both",  questionnaire: {    instrument: "WOMAC",    scores: {...},    pain_0_10: ...,  },  camera: {    pose_engine: "mediapipe",    rom_deg: ...,    flexion_curve: [...],    gait_features: {...},    quality: ...  },  wearable: {    device_id: ...,    placement: "thigh+shin",    sample_rate_hz: 50,    acc_features: {...},    gyro_features: {...},    quality: ...  },  imaging: {    available: true|false,    attachment_ids: [...]  },  ai: {    clinical_score: ...,    camera_score: ...,    imu_score: ...,    fused_score: ...,    risk_band: "low|moderate|high",    referral_priority: ...,    edge_model_version: ...,    cloud_model_version: ...  }}
+
+### [Heading2] 37.1 Example repository/module structure
+arogya-ner/├── mobile/│   ├── auth/│   ├── patient/│   ├── screening/│   │   ├── whole_body/│   │   └── joint/│   ├── pose/│   ├── wearable/│   ├── offline_db/│   └── sync/├── protocols/│   ├── core/│   ├── knee/│   ├── hip/│   ├── shoulder/│   ├── ankle/│   ├── elbow/│   └── wrist/├── ml/│   ├── stage1_stgcn/│   ├── camera_temporal/│   ├── imu_temporal/│   ├── clinical_xgb/│   └── fusion/├── hardware/│   ├── esp32_firmware/│   └── sensor_protocol/├── backend/│   ├── api/│   ├── auth/│   ├── sync/│   └── inference/├── specialist_web/└── docs/    ├── PRD.md    ├── PTD.md    ├── protocols/    └── validation/
+
+### [Heading1] 38. Appendix — Decision Log
+
+[TABLE]
+Decision | Final position | Reason
+Overall scope | Multi-joint musculoskeletal/OA screening platform | Matches SIH breadth while allowing a focused MVP
+Primary workflow | Whole-body screen before targeted joint assessment | Minimizes hardware use and localizes where further testing is warranted
+CV backbone | MediaPipe primary; YOLOv8n-Pose benchmark/alternative | Fits mobile/edge use and existing prototype
+Stage-1 AI | Lightweight ST-GCN | Captures graph structure + temporal movement
+Stage-2 camera AI | TCN / 1D-CNN | Efficient for joint-specific sequences
+Clinical AI | XGBoost + SHAP | Strong tabular baseline and explainability
+Fusion | Calibrated logistic regression initially | Simple, robust, small-data friendly
+Wearable | Reusable Motion Pod; dual-pod preferred for final knee relative kinematics | Low cost and modular
+Imaging | Optional evidence initially; dedicated imaging AI later | Avoids over-scoping and unsupported medical claims
+Edge/cloud | TFLite offline + stronger cloud model online | Directly addresses low-connectivity requirement
+Output | Risk/referral indication | Avoids unsupported standalone diagnosis
+LLM | Structured-output explanation layer only | Keeps perception and medical reasoning controllable
+Patient identifier | Arogya Patient ID as operational identifier | Reduces routine exposure of Aadhaar
+Raw video | Not stored by default | Privacy and data-minimization design
+[/TABLE]
+
+### [Heading1] 39. Source Notes and References from Project Context
+The project context used for this document specifies the following core technical/clinical foundations: 33-point pose extraction; temporal kinematic analysis; WOMAC; XGBoost + SHAP; late fusion; offline SQLite/SQLCipher-style storage; opportunistic cloud sync; specialist dashboard; a reusable ESP32-S3 + MPU-6050 wearable; multilingual/voice assistance; and explicit screening-not-diagnosis guardrails.
+Internal source sections used: Arogya-NER Master Context Sections 1–13; Arogya-NER Complete End-to-End Technical Specification Sections 1–6. The product has been expanded here according to the subsequent conversation decisions, especially the whole-body-first → targeted-joint workflow and edge/cloud model switching.

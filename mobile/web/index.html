@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+
+  <title>Arogya-NER — musculoskeletal screening (demonstration build)</title>
+  <meta name="description" content="Arogya-NER: offline-first musculoskeletal and osteoarthritis risk screening for the North Eastern Region of India. Web demonstration build — not for clinical use.">
+
+  <link rel="manifest" href="manifest.json">
+
+  <!--
+    The web build exists to demonstrate the product workflow to reviewers. It is
+    NOT the field application: the camera pose engine, the Motion Pod BLE
+    transport and the encrypted (SQLCipher) local store are Android/iOS features.
+    On the web those three fall back to a synthetic pose engine, a simulated pod
+    and an unencrypted browser store, each of which the app labels on screen
+    rather than hiding.
+  -->
+</head>
+<body style="margin: 0; background: #F6F8F8;">
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

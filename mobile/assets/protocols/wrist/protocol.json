@@ -1,0 +1,183 @@
+{
+  "$schema": "../schema/joint_protocol.schema.json",
+  "joint_id": "wrist",
+  "protocol_version": "1.0.0",
+  "display": {
+    "title": "Wrist Assessment",
+    "short_title": "Wrist",
+    "body_map_region": "wrist",
+    "laterality_required": true
+  },
+  "status": "future",
+  "supported_sides": ["left", "right", "both"],
+
+  "clinical_questionnaire": {
+    "instrument": "PRWE",
+    "instrument_version": "to be confirmed with clinical advisor",
+    "status": "pending_clinical_sign_off",
+    "reference_instrument": "Patient-Rated Wrist Evaluation (PRWE) is the candidate named here. QuickDASH is the alternative.",
+    "$status_reason": "PRD §12.2 lists wrist as a future module with no named instrument. No item set is transcribed until clinical sign-off.",
+    "licence_note": "PRWE / QuickDASH carry their own licensing terms."
+  },
+
+  "camera_setup": {
+    "views": ["front", "side_right", "side_left"],
+    "full_body_required": false,
+    "est_distance_m": { "min": 0.8, "max": 1.8 },
+    "framing_note_key": "cam.wrist.framing",
+    "min_visibility_landmarks": ["left_elbow", "right_elbow", "left_wrist", "right_wrist", "left_index", "right_index"],
+    "$framing_note": "Wrist landmarks (pinky/index/thumb) are the least reliable in the 33-point topology at distance, so the wrist protocol requires the closest framing of any joint and should be treated as the least mature module."
+  },
+
+  "movement_tests": [
+    {
+      "id": "wrist_flexion_extension",
+      "name_key": "test.wrist.flexion_extension.name",
+      "instruction_key": "test.wrist.flexion_extension.instruction",
+      "kind": "active_rom",
+      "repeat_count": 3,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": ["wrist_flexion_rom", "wrist_extension_rom"]
+    },
+    {
+      "id": "wrist_deviation",
+      "name_key": "test.wrist.deviation.name",
+      "instruction_key": "test.wrist.deviation.instruction",
+      "kind": "active_rom",
+      "repeat_count": 3,
+      "required": false,
+      "camera_view": "front",
+      "derived_features": ["wrist_deviation_proxy"]
+    }
+  ],
+
+  "landmark_subset": {
+    "joint_chains": [
+      { "name": "right_wrist_angle", "landmarks": ["right_elbow", "right_wrist", "right_index"], "angle_feature": "wrist_angle_right" },
+      { "name": "left_wrist_angle", "landmarks": ["left_elbow", "left_wrist", "left_index"], "angle_feature": "wrist_angle_left" }
+    ],
+    "primary_angle": "wrist_angle_right"
+  },
+
+  "wearable": {
+    "supported": true,
+    "configurations": [
+      {
+        "id": "single_pod_forearm",
+        "pods": [{ "pod_index": 1, "segment": "forearm", "placement_key": "place.wrist.pod1.forearm" }],
+        "label_key": "wearable.wrist.single",
+        "status": "preferred",
+        "$note": "PRD §12.2 representative placement: forearm/hand configuration."
+      },
+      {
+        "id": "dual_pod_forearm_hand",
+        "pods": [
+          { "pod_index": 1, "segment": "forearm", "placement_key": "place.wrist.pod1.forearm" },
+          { "pod_index": 2, "segment": "hand", "placement_key": "place.wrist.pod2.hand" }
+        ],
+        "label_key": "wearable.wrist.dual",
+        "status": "untrained",
+        "$note": "A hand-mounted pod would be mechanically awkward at this size; requires a hardware revision before it is a real option."
+      }
+    ],
+    "sensor_channels": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"],
+    "sample_rate_hz": 50
+  },
+
+  "feature_pipeline": [
+    { "key": "wrist_angle_right", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Right wrist angle from the elbow-wrist-index chain. The protocol's primary angle item." },
+    { "key": "wrist_angle_left", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Left wrist angle from the elbow-wrist-index chain." },
+    { "key": "wrist_flexion_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active wrist flexion range of motion." },
+    { "key": "wrist_extension_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active wrist extension range of motion." },
+    { "key": "wrist_deviation_proxy", "group": "camera_kinematics", "unit": "ratio", "source": "derived", "description": "Radial/ulnar deviation proxy from hand landmarks.", "research_grade": true },
+    { "key": "imu_acc_magnitude_mean", "group": "imu_acc", "unit": "g", "source": "wearable", "description": "Mean Euclidean acceleration magnitude." },
+    { "key": "imu_gyro_magnitude_mean", "group": "imu_gyro", "unit": "deg/s", "source": "wearable", "description": "Mean angular velocity magnitude." },
+    { "key": "imu_signal_quality", "group": "imu_acc", "unit": "ratio", "source": "derived", "description": "Sensor quality score." }
+  ],
+
+  "models": [
+    {
+      "branch": "camera_temporal",
+      "model_id": "wrist_camera_tcn",
+      "version": "0.0.0",
+      "target": { "label": "wrist_oa_risk_marker", "label_source": "none available", "label_provenance": "no public labelled pose-sequence dataset for wrist OA is wired in" },
+      "deployment": ["edge_tflite"],
+      "architecture": "1D-CNN / TCN over engineered pose features",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": ["Deliberately untrained, and the underlying hand landmarks are the least reliable in the topology."]
+    },
+    {
+      "branch": "imu_temporal",
+      "model_id": "wrist_imu_temporal",
+      "version": "0.0.0",
+      "target": { "label": "wrist_oa_risk_marker", "label_source": "none available", "label_provenance": "no wrist cohort exists in the sourced datasets" },
+      "deployment": ["edge_tflite"],
+      "architecture": "TCN over IMU features",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["imu_thigh"],
+      "limitations": ["Untrained — genuine dataset coverage gap."]
+    },
+    {
+      "branch": "clinical_tabular",
+      "model_id": "wrist_clinical_xgb",
+      "version": "0.0.0",
+      "target": { "label": "wrist_oa_risk_marker", "label_source": "none available", "label_provenance": "questionnaire not yet configured" },
+      "deployment": ["edge_tflite"],
+      "architecture": "XGBoost + SHAP",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "shap",
+      "input_modalities": ["questionnaire"],
+      "limitations": ["Blocked on questionnaire clinical sign-off."]
+    },
+    {
+      "branch": "fusion",
+      "model_id": "wrist_fusion_lr",
+      "version": "0.0.0",
+      "target": { "label": "wrist_oa_risk_marker", "label_source": "none available", "label_provenance": "no trained contributing branch" },
+      "deployment": ["edge_tflite"],
+      "architecture": "calibrated logistic regression",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": ["All branches untrained, so no fused score is emitted."]
+    }
+  ],
+
+  "risk_logic": {
+    "bands": [
+      { "id": "low", "min_score": 0.0, "label_key": "risk.low", "action_key": "action.self_care" },
+      { "id": "moderate", "min_score": 0.40, "label_key": "risk.moderate", "action_key": "action.phc_review" },
+      { "id": "high", "min_score": 0.70, "label_key": "risk.high", "action_key": "action.specialist_review" }
+    ],
+    "default_referral": "phc_review",
+    "threshold_provenance": "PLACEHOLDER — UI bucket boundaries only; no model consumes them.",
+    "operating_point": { "priority": "sensitivity", "rationale": "PRD §33: under-referral is rated High impact." },
+    "deferral": { "allowed": true, "reason_required": true }
+  },
+
+  "report_template": [
+    { "section_id": "patient", "title_key": "report.section.patient", "fields": ["arogya_patient_id", "masked_identity", "age", "sex", "datetime"] },
+    { "section_id": "worker_site", "title_key": "report.section.worker_site", "fields": ["worker_id", "worker_name", "phc", "district"] },
+    { "section_id": "initial_screen", "title_key": "report.section.initial_screen", "fields": ["pain_map", "mobility_summary", "exposure_profile"] },
+    { "section_id": "targeted_joint", "title_key": "report.section.targeted_joint", "fields": ["joint", "side", "wrist_flexion_rom", "sensor_findings"] },
+    { "section_id": "ai_result", "title_key": "report.section.ai_result", "fields": ["measurement_summary", "protocol_status_notice"] },
+    { "section_id": "referral", "title_key": "report.section.referral", "fields": ["recommended_action", "urgency"] },
+    { "section_id": "preventive_guidance", "title_key": "report.section.preventive_guidance", "fields": ["guidance_items"] },
+    { "section_id": "disclaimer", "title_key": "report.section.disclaimer", "fields": ["screening_not_diagnosis"] }
+  ],
+
+  "safety": {
+    "contraindications": [
+      "Recent wrist fracture within the clinician-set recovery window",
+      "Suspected scaphoid fracture or acute carpal injury",
+      "Uncontrolled pain preventing active movement"
+    ],
+    "red_flags": ["Anatomical snuffbox tenderness after trauma", "Hot swollen joint with fever", "Progressive numbness or weakness in the hand"],
+    "stop_conditions": ["Pain above the patient's stated tolerable level", "Patient requests to stop"],
+    "disclaimer_key": "disclaimer.screening_not_diagnosis"
+  }
+}

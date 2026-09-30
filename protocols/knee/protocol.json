@@ -1,0 +1,464 @@
+{
+  "$schema": "../schema/joint_protocol.schema.json",
+  "joint_id": "knee",
+  "protocol_version": "1.0.0",
+  "display": {
+    "title": "Knee Assessment",
+    "short_title": "Knee",
+    "body_map_region": "knee",
+    "laterality_required": true
+  },
+  "status": "mvp",
+  "supported_sides": ["left", "right", "both"],
+
+  "clinical_questionnaire": {
+    "instrument": "WOMAC",
+    "instrument_version": "3.1 (Likert 5-point)",
+    "status": "specified",
+    "licence_note": "WOMAC is a copyrighted, licensed clinical instrument (Bellamy et al., 1982; WOMAC 3.1). Item text below is stored as localisation KEYS only, not verbatim instrument text. The deployment authority must confirm instrument licensing and use approved wording before field rollout. Scoring arithmetic is implemented exactly as published.",
+    "items": [
+      { "id": "womac_pain_1", "subscale": "pain", "text_key": "q.womac.pain.1.walk_flat", "voice_prompt_key": "v.womac.pain.1" },
+      { "id": "womac_pain_2", "subscale": "pain", "text_key": "q.womac.pain.2.stairs", "voice_prompt_key": "v.womac.pain.2" },
+      { "id": "womac_pain_3", "subscale": "pain", "text_key": "q.womac.pain.3.night_bed", "voice_prompt_key": "v.womac.pain.3" },
+      { "id": "womac_pain_4", "subscale": "pain", "text_key": "q.womac.pain.4.sit_lying", "voice_prompt_key": "v.womac.pain.4" },
+      { "id": "womac_pain_5", "subscale": "pain", "text_key": "q.womac.pain.5.standing", "voice_prompt_key": "v.womac.pain.5" },
+      { "id": "womac_stiff_1", "subscale": "stiffness", "text_key": "q.womac.stiff.1.morning", "voice_prompt_key": "v.womac.stiff.1" },
+      { "id": "womac_stiff_2", "subscale": "stiffness", "text_key": "q.womac.stiff.2.later_day", "voice_prompt_key": "v.womac.stiff.2" },
+      { "id": "womac_func_1", "subscale": "function", "text_key": "q.womac.func.1.descend_stairs", "voice_prompt_key": "v.womac.func.1" },
+      { "id": "womac_func_2", "subscale": "function", "text_key": "q.womac.func.2.ascend_stairs", "voice_prompt_key": "v.womac.func.2" },
+      { "id": "womac_func_3", "subscale": "function", "text_key": "q.womac.func.3.rise_sitting", "voice_prompt_key": "v.womac.func.3" },
+      { "id": "womac_func_4", "subscale": "function", "text_key": "q.womac.func.4.standing", "voice_prompt_key": "v.womac.func.4" },
+      { "id": "womac_func_5", "subscale": "function", "text_key": "q.womac.func.5.bend_floor", "voice_prompt_key": "v.womac.func.5" },
+      { "id": "womac_func_6", "subscale": "function", "text_key": "q.womac.func.6.walk_flat", "voice_prompt_key": "v.womac.func.6" },
+      { "id": "womac_func_7", "subscale": "function", "text_key": "q.womac.func.7.car", "voice_prompt_key": "v.womac.func.7" },
+      { "id": "womac_func_8", "subscale": "function", "text_key": "q.womac.func.8.shopping", "voice_prompt_key": "v.womac.func.8" },
+      { "id": "womac_func_9", "subscale": "function", "text_key": "q.womac.func.9.socks_on", "voice_prompt_key": "v.womac.func.9" },
+      { "id": "womac_func_10", "subscale": "function", "text_key": "q.womac.func.10.rise_bed", "voice_prompt_key": "v.womac.func.10" },
+      { "id": "womac_func_11", "subscale": "function", "text_key": "q.womac.func.11.socks_off", "voice_prompt_key": "v.womac.func.11" },
+      { "id": "womac_func_12", "subscale": "function", "text_key": "q.womac.func.12.lying_bed", "voice_prompt_key": "v.womac.func.12" },
+      { "id": "womac_func_13", "subscale": "function", "text_key": "q.womac.func.13.bath", "voice_prompt_key": "v.womac.func.13" },
+      { "id": "womac_func_14", "subscale": "function", "text_key": "q.womac.func.14.sitting", "voice_prompt_key": "v.womac.func.14" },
+      { "id": "womac_func_15", "subscale": "function", "text_key": "q.womac.func.15.toilet", "voice_prompt_key": "v.womac.func.15" },
+      { "id": "womac_func_16", "subscale": "function", "text_key": "q.womac.func.16.heavy_duties", "voice_prompt_key": "v.womac.func.16" },
+      { "id": "womac_func_17", "subscale": "function", "text_key": "q.womac.func.17.light_duties", "voice_prompt_key": "v.womac.func.17" }
+    ],
+    "scoring": {
+      "response_options": [
+        { "value": 0, "text_key": "a.womac.none" },
+        { "value": 1, "text_key": "a.womac.mild" },
+        { "value": 2, "text_key": "a.womac.moderate" },
+        { "value": 3, "text_key": "a.womac.severe" },
+        { "value": 4, "text_key": "a.womac.extreme" }
+      ],
+      "subscales": [
+        { "name": "pain", "min": 0, "max": 20 },
+        { "name": "stiffness", "min": 0, "max": 8 },
+        { "name": "function", "min": 0, "max": 68 }
+      ],
+      "total": { "min": 0, "max": 96 },
+      "direction": "higher_is_worse",
+      "normalisation": "percent_of_max",
+      "severity_bands": [],
+      "$scoring_notes": [
+        "24 items x 0-4 Likert. Pain 5 items -> 0-20; Stiffness 2 items -> 0-8; Function 17 items -> 0-68; total 0-96. Higher = worse.",
+        "Normalised percent = raw / max * 100.",
+        "severity_bands is deliberately empty. Arogya-NER must not invent WOMAC cut-offs (PRD §1.2, §26.5). Deployment authorities may add sourced bands here; anything present without a 'source' and validated:true renders as configurable, not clinical.",
+        "Measurement caveat carried from the literature: the WOMAC stiffness subscale has notably lower test-retest reliability than pain and function, and is weighted accordingly in explanation output. Do not present a stiffness-only change as meaningful."
+      ]
+    }
+  },
+
+  "camera_setup": {
+    "views": ["side_right", "side_left", "front", "seated"],
+    "full_body_required": false,
+    "est_distance_m": { "min": 2.0, "max": 4.0 },
+    "framing_note_key": "cam.knee.framing",
+    "min_visibility_landmarks": [
+      "left_hip", "right_hip",
+      "left_knee", "right_knee",
+      "left_ankle", "right_ankle",
+      "left_heel", "right_heel",
+      "left_foot_index", "right_foot_index"
+    ]
+  },
+
+  "movement_tests": [
+    {
+      "id": "knee_active_rom",
+      "name_key": "test.knee.active_rom.name",
+      "instruction_key": "test.knee.active_rom.instruction",
+      "kind": "active_rom",
+      "repeat_count": 3,
+      "duration_s": 20,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": [
+        "knee_flexion_angle_min", "knee_flexion_angle_max", "knee_flexion_rom",
+        "knee_angular_velocity_peak", "knee_extension_deficit", "knee_rom_confidence"
+      ]
+    },
+    {
+      "id": "knee_sit_to_stand",
+      "name_key": "test.knee.sit_to_stand.name",
+      "instruction_key": "test.knee.sit_to_stand.instruction",
+      "kind": "sit_to_stand",
+      "repeat_count": 5,
+      "required": true,
+      "camera_view": "front",
+      "derived_features": [
+        "sts_duration_mean", "sts_duration_cv", "sts_knee_angle_min",
+        "sts_trunk_flexion_peak", "sts_symmetry_index"
+      ]
+    },
+    {
+      "id": "knee_short_walk",
+      "name_key": "test.knee.short_walk.name",
+      "instruction_key": "test.knee.short_walk.instruction",
+      "kind": "walk",
+      "repeat_count": 6,
+      "duration_s": 15,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": [
+        "gait_cadence", "gait_step_time_mean", "gait_step_time_cv",
+        "gait_knee_excursion_mean", "gait_asymmetry_index", "gait_confidence"
+      ]
+    },
+    {
+      "id": "knee_static_standing",
+      "name_key": "test.knee.static_standing.name",
+      "instruction_key": "test.knee.static_standing.instruction",
+      "kind": "static_hold",
+      "repeat_count": 1,
+      "duration_s": 8,
+      "required": true,
+      "camera_view": "front",
+      "derived_features": [
+        "posture_knee_angle_static", "posture_pelvis_tilt", "posture_trunk_lean",
+        "posture_knee_alignment_asymmetry"
+      ]
+    },
+    {
+      "id": "knee_squat_optional",
+      "name_key": "test.knee.squat.name",
+      "instruction_key": "test.knee.squat.instruction",
+      "kind": "squat",
+      "repeat_count": 3,
+      "required": false,
+      "camera_view": "front",
+      "derived_features": [
+        "squat_depth_angle", "squat_valgus_proxy"
+      ],
+      "$note": "Optional. squat_valgus_proxy is research-grade only (PRD §13.4) and is excluded from the primary fusion model."
+    }
+  ],
+
+  "landmark_subset": {
+    "joint_chains": [
+      {
+        "name": "right_knee_flexion",
+        "landmarks": ["right_hip", "right_knee", "right_ankle"],
+        "angle_feature": "knee_flexion_angle_right"
+      },
+      {
+        "name": "left_knee_flexion",
+        "landmarks": ["left_hip", "left_knee", "left_ankle"],
+        "angle_feature": "knee_flexion_angle_left"
+      },
+      {
+        "name": "right_trunk_thigh",
+        "landmarks": ["right_shoulder", "right_hip", "right_knee"],
+        "angle_feature": "trunk_thigh_angle_right"
+      },
+      {
+        "name": "right_ankle_dorsiflexion",
+        "landmarks": ["right_knee", "right_ankle", "right_foot_index"],
+        "angle_feature": "ankle_dorsiflexion_right"
+      }
+    ],
+    "primary_angle": "knee_flexion_angle_right"
+  },
+
+  "wearable": {
+    "supported": true,
+    "configurations": [
+      {
+        "id": "dual_pod_thigh_shin",
+        "pods": [
+          { "pod_index": 1, "segment": "thigh", "placement_key": "place.knee.pod1.thigh" },
+          { "pod_index": 2, "segment": "shank", "placement_key": "place.knee.pod2.shank" }
+        ],
+        "label_key": "wearable.knee.dual",
+        "status": "preferred",
+        "$note": "PRD §14.3 preferred final knee configuration: proximal + distal pod to estimate relative joint motion."
+      },
+      {
+        "id": "single_pod_shank",
+        "pods": [
+          { "pod_index": 1, "segment": "shank", "placement_key": "place.knee.pod1.shank" }
+        ],
+        "label_key": "wearable.knee.single",
+        "status": "demonstrator",
+        "$note": "Lower-cost demonstrator. Captures local segment motion only."
+      },
+      {
+        "id": "reference_l5_dorsal_foot",
+        "pods": [
+          { "pod_index": 1, "segment": "lumbar_l5", "placement_key": "place.reference.pod1.l5" },
+          { "pod_index": 2, "segment": "dorsal_foot", "placement_key": "place.reference.pod2.foot" }
+        ],
+        "label_key": "wearable.knee.reference_l5_foot",
+        "status": "untrained",
+        "$note": "The only placement for which real labelled knee/hip-OA IMU data is currently available (Voisard et al. 2025). Recorded here so the trained model's provenance is explicit and the app can flag the placement mismatch against the intended thigh+shin protocol."
+      }
+    ],
+    "sensor_channels": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"],
+    "sample_rate_hz": 50,
+    "$sampling_note": "PRD §14.4 targets 50 Hz BLE streaming from the Motion Pod. Public training data is sampled at its own native rate and is resampled to the feature pipeline's rate during development; the on-device capture rate remains a field-protocol decision to be confirmed experimentally per §14.4."
+  },
+
+  "feature_pipeline": [
+    { "key": "knee_flexion_angle_right", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Right knee flexion angle derived from the hip-knee-ankle chain. This is the protocol's primary angle item." },
+    { "key": "knee_flexion_angle_left", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Left knee flexion angle derived from the hip-knee-ankle chain." },
+    { "key": "trunk_thigh_angle_right", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Right trunk-to-thigh angle, used for rising/compensation analysis." },
+    { "key": "ankle_dorsiflexion_right", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Right ankle dorsiflexion angle, derived alongside the knee for gait analysis." },
+    { "key": "knee_flexion_angle_min", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Minimum knee flexion angle achieved during the active ROM test." },
+    { "key": "knee_flexion_angle_max", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Maximum knee flexion angle achieved during the active ROM test." },
+    { "key": "knee_flexion_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "max - min across the movement. Primary quantitative outcome of the knee module." },
+    { "key": "knee_extension_deficit", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Shortfall from full extension versus the contralateral side when both sides are assessed." },
+    { "key": "knee_angular_velocity_peak", "group": "camera_kinematics", "unit": "deg/s", "source": "derived", "description": "Peak angular velocity of the knee joint angle trace." },
+    { "key": "knee_angle_trajectory", "group": "camera_kinematics", "unit": "deg[]", "source": "camera", "description": "Time series of knee angle across the capture window. Also the source of the movement-view chart on the specialist dashboard (§23.1)." },
+    { "key": "sts_duration_mean", "group": "camera_kinematics", "unit": "s", "source": "derived", "description": "Mean duration of the sit-to-stand transition." },
+    { "key": "sts_duration_cv", "group": "camera_kinematics", "unit": "ratio", "source": "derived", "description": "Coefficient of variation of sit-to-stand duration across repetitions (movement consistency)." },
+    { "key": "sts_trunk_flexion_peak", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Peak trunk flexion used to compensate during rising." },
+    { "key": "sts_symmetry_index", "group": "camera_kinematics", "unit": "ratio", "source": "derived", "description": "Left/right asymmetry of sit-to-stand mechanics." },
+    { "key": "sts_knee_angle_min", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Minimum knee angle reached during the sit-to-stand transition." },
+    { "key": "squat_depth_angle", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Knee angle at maximum squat depth (optional test only)." },
+    { "key": "gait_cadence", "group": "camera_gait", "unit": "steps/min", "source": "camera", "description": "Step rate derived from ankle landmark trajectory." },
+    { "key": "gait_step_time_mean", "group": "camera_gait", "unit": "s", "source": "camera", "description": "Mean step time." },
+    { "key": "gait_step_time_cv", "group": "camera_gait", "unit": "ratio", "source": "derived", "description": "Step-time variability — a recognised gait-stability proxy." },
+    { "key": "gait_knee_excursion_mean", "group": "camera_gait", "unit": "deg", "source": "derived", "description": "Mean knee flexion excursion per stride." },
+    { "key": "gait_asymmetry_index", "group": "camera_gait", "unit": "ratio", "source": "derived", "description": "Left/right symmetry of gait timing and excursion." },
+    { "key": "posture_knee_angle_static", "group": "camera_posture", "unit": "deg", "source": "camera", "description": "Knee angle in quiet standing." },
+    { "key": "posture_pelvis_tilt", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Frontal/sagittal pelvis tilt proxy from hip landmarks." },
+    { "key": "posture_trunk_lean", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Trunk lean relative to vertical." },
+    { "key": "posture_knee_alignment_asymmetry", "group": "camera_posture", "unit": "ratio", "source": "derived", "description": "Static left/right knee alignment asymmetry." },
+    { "key": "knee_rom_confidence", "group": "camera_kinematics", "unit": "ratio", "source": "derived", "description": "Per-test data-quality score from landmark likelihood and framing (PRD §9.4, §15.4)." },
+    { "key": "gait_confidence", "group": "camera_gait", "unit": "ratio", "source": "derived", "description": "Gait capture quality score." },
+    { "key": "imu_acc_magnitude_mean", "group": "imu_acc", "unit": "g", "source": "wearable", "description": "Mean Euclidean acceleration magnitude (PRD §15.2). Orientation-robust by construction." },
+    { "key": "imu_acc_magnitude_std", "group": "imu_acc", "unit": "g", "source": "wearable", "description": "Standard deviation of acceleration magnitude — activity intensity / variability." },
+    { "key": "imu_acc_jerk_mean", "group": "imu_acc", "unit": "g/s", "source": "derived", "description": "Mean absolute first derivative of acceleration magnitude — movement smoothness." },
+    { "key": "imu_gyro_magnitude_mean", "group": "imu_gyro", "unit": "deg/s", "source": "wearable", "description": "Mean angular velocity magnitude." },
+    { "key": "imu_gyro_magnitude_peak", "group": "imu_gyro", "unit": "deg/s", "source": "wearable", "description": "Peak angular velocity." },
+    { "key": "imu_gyro_hf_variance", "group": "imu_gyro", "unit": "deg^2/s^2", "source": "derived", "description": "High-frequency variance of the angular velocity signal.", "research_grade": true },
+    { "key": "imu_proximal_distal_correlation", "group": "imu_relative", "unit": "ratio", "source": "derived", "description": "Correlation between proximal and distal pod signals when dual-pod capture is used." },
+    { "key": "imu_relative_phase_lag", "group": "imu_relative", "unit": "ms", "source": "derived", "description": "Phase lag between proximal and distal segment motion.", "research_grade": true },
+    { "key": "imu_signal_quality", "group": "imu_acc", "unit": "ratio", "source": "derived", "description": "Sensor quality score: dropouts, saturation, sampling-rate stability (PRD §15.4)." },
+    { "key": "womac_pain", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC pain subscale, 0-20." },
+    { "key": "womac_stiffness", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC stiffness subscale, 0-8. Lower reliability than the other subscales." },
+    { "key": "womac_function", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC physical function subscale, 0-68." },
+    { "key": "womac_total", "group": "clinical", "unit": "score", "source": "questionnaire", "description": "WOMAC total, 0-96." },
+    { "key": "squat_valgus_proxy", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Frontal-plane knee valgus proxy during squat.", "research_grade": true },
+    { "key": "posture_varus_thrust", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Frontal-plane alignment / varus-thrust proxy.", "research_grade": true }
+  ],
+
+  "models": [
+    {
+      "branch": "stage1_localisation",
+      "model_id": "knee_stage1_risk",
+      "version": "0.1.0",
+      "target": {
+        "label": "knee_oa_risk_marker",
+        "label_source": "knee OA vs asymptomatic group membership (real, clinician-assigned cohort label)",
+        "label_provenance": "Voisard et al. 2025, Scientific Data — Clinical Gait Signals, orthopaedic (knee osteoarthritis) cohort"
+      },
+      "deployment": ["edge_tflite"],
+      "architecture": "gradient_boosted_trees over engineered gait+IMU features, exported to TFLite via a decision-forest/mathematical transform",
+      "training_status": "planned",
+      "explainability": "feature_attribution",
+      "input_modalities": ["imu_l5", "imu_dorsal_foot"],
+      "placement_note": "Trained on lumbar-L5 + dorsal-foot IMU trials, which is NOT the thigh+shin placement this protocol specifies for the Motion Pod. A score from this model characterises a person under the reference placement; it must not be presented as a thigh+shin measurement.",
+      "limitations": [
+        "The source cohort is not from the North Eastern Region of India. No NER-specific validation exists (PRD §26.2, §33).",
+        "Cohort membership is not the same target as a clinical OA diagnosis, and is not a Kellgren-Lawrence grade (PRD §26.3).",
+        "Sample size supports a prototype operating point only, not a clinical threshold."
+      ]
+    },
+    {
+      "branch": "clinical_tabular",
+      "model_id": "knee_clinical_xgb",
+      "version": "0.1.0",
+      "target": {
+        "label": "knee_oa_risk_marker",
+        "label_source": "clinician-assigned cohort label for the same questionnaire/clinical record",
+        "label_provenance": "Voisard et al. 2025 clinical annotations (per-participant severity scores)"
+      },
+      "deployment": ["edge_tflite", "cloud"],
+      "architecture": "XGBoost binary classifier with SHAP feature attribution (PRD §17.3)",
+      "training_status": "planned",
+      "explainability": "shap",
+      "input_modalities": ["questionnaire", "demographics"],
+      "limitations": [
+        "WOMAC is not part of the source dataset's feature set, so the clinical branch is trained on the exposure/demographic fields that ARE present. WOMAC therefore contributes to referral priority through the protocol's own rules, not through this model.",
+        "Cohort label, not diagnosis."
+      ]
+    },
+    {
+      "branch": "camera_temporal",
+      "model_id": "knee_camera_tcn",
+      "version": "0.0.0",
+      "target": {
+        "label": "knee_oa_risk_marker",
+        "label_source": "none available",
+        "label_provenance": "no public dataset provides labelled pose sequences with joint-level OA labels (PRD §33)"
+      },
+      "deployment": ["edge_tflite"],
+      "architecture": "1D-CNN / TCN over engineered pose features (PRD §17.1)",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": [
+        "Deliberately NOT trained. There is no public dataset that pairs monocular pose sequences with joint-level OA labels, so any camera-trained score would be fabricated (PRD §1.2, §26.5).",
+        "The camera branch still runs: it produces real, measured biomechanics (ROM, gait timing, asymmetry) which are reported as measurements, never as an OA probability.",
+        "Fusion must down-weight or exclude this branch; see fusion model metadata."
+      ]
+    },
+    {
+      "branch": "imu_temporal",
+      "model_id": "knee_imu_temporal",
+      "version": "0.1.0",
+      "target": {
+        "label": "knee_oa_risk_marker",
+        "label_source": "knee OA vs asymptomatic group membership",
+        "label_provenance": "Voisard et al. 2025, Scientific Data"
+      },
+      "deployment": ["edge_tflite", "cloud"],
+      "architecture": "Shallow MLP over 7 engineered IMU features (7-16-8-1) with standardisation folded into the first layer, exported as float32 TFLite. Deliberately NOT the TCN of PRD §17.2: 18 knee-OA participants cannot support a sequence model, so a compact tabular network is trained instead.",
+      "training_status": "trained",
+      "explainability": "none",
+      "dataset": "Voisard et al. 2025, Scientific Data - Clinical Gait Signals (CC BY 4.0, non-commercial). 438 trials from 91 participants (18 knee-OA, 73 asymptomatic); metrics are participant-grouped 5-fold cross-validation.",
+      "metrics": {
+        "evaluation": "StratifiedGroupKFold, 5 folds, grouped on subject_id; all values are out-of-fold over 438 trials",
+        "validation_scope": "single dataset - no external validation and no NER validation",
+        "auc_grouped_cv_mean": 0.8915973584403428,
+        "auc_grouped_cv_std": 0.026444135657091215,
+        "auc_pooled_oof": 0.8828703703703703,
+        "average_precision": 0.6378307946318093,
+        "brier": 0.1411841021890117,
+        "threshold": 1.539401819172781e-05,
+        "target_sensitivity": 0.9,
+        "operating_point_sensitivity": 0.9102564102564102,
+        "operating_point_specificity": 0.6527777777777778,
+        "ppv_at_dataset_prevalence": 0.3622448979591837,
+        "npv_at_dataset_prevalence": 0.9710743801652892,
+        "prevalence": 0.1780821917808219,
+        "n_trials": 438,
+        "n_participants": 91,
+        "n_positive_participants": 18,
+        "n_negative_participants": 73,
+        "calibration": "not_calibrated"
+      },
+      "input_modalities": ["imu_l5", "imu_dorsal_foot"],
+      "placement_note": "Trained on lumbar-L5 + dorsal-foot IMU data. The Motion Pod's intended knee placement is thigh+shin. See the stage1 model's placement note.",
+      "limitations": [
+        "Not validated in NER.",
+        "Feature set derived from a four-IMU reference rig, reduced to the channels the Motion Pod can reproduce.",
+        "Output is a ranking, not a calibrated probability: calibration was never performed, and the training run's operating threshold sits near zero because the network's scores saturate towards 0 and 1.",
+        "Metrics are participant-grouped cross-validation within one dataset - not external validation, and not a Kellgren-Lawrence grade (PRD §26.3)."
+      ]
+    },
+    {
+      "branch": "fusion",
+      "model_id": "knee_fusion_lr",
+      "version": "0.1.0",
+      "target": {
+        "label": "knee_oa_risk_marker",
+        "label_source": "as per contributing branch",
+        "label_provenance": "Voisard et al. 2025 where the contributing branch requires labels"
+      },
+      "deployment": ["edge_tflite", "cloud"],
+      "architecture": "calibrated logistic regression over available branch scores plus modality confidence (PRD §17.5)",
+      "training_status": "planned",
+      "explainability": "feature_attribution",
+      "input_modalities": ["imu_l5", "imu_dorsal_foot", "questionnaire", "pose_landmarks"],
+      "placement_note": "Fuses branch scores that were themselves produced at the lumbar-L5 + dorsal-foot reference placement. Combining them does not turn a reference-placement score into a thigh+shin measurement, and the report must not imply that it does.",
+      "limitations": [
+        "Confidence-aware: branches reporting untrained_insufficient_data (camera) are excluded rather than fed in as zeros.",
+        "Graceful degradation must be calibrated from validation data, not fixed percentages (PRD §15.5).",
+        "The learned fusion weights are a simulation until trained against multiple modalities on the same participants."
+      ]
+    },
+    {
+      "branch": "imaging",
+      "model_id": "knee_imaging_kl",
+      "version": "0.0.0",
+      "target": {
+        "label": "kellgren_lawrence_grade",
+        "label_source": "expert radiographic grading (0-4)",
+        "label_provenance": "available only if a KL-graded radiograph dataset is supplied; otherwise unused"
+      },
+      "deployment": ["cloud"],
+      "architecture": "CNN ordinal classifier (evaluated in a separate imaging R&D track, PRD §16.3)",
+      "training_status": "planned",
+      "explainability": "none",
+      "input_modalities": ["radiograph"],
+      "limitations": [
+        "Imaging is OPTIONAL supporting evidence in the MVP (PRD §16.2). Its absence must never block the screening workflow.",
+        "KL grade is a radiographic reference, not a clinical severity of the patient's pain or function. Downstream output must not present a predicted KL grade as a clinical grade (PRD §1.2).",
+        "No imaging model exists until a labelled radiograph dataset is actually supplied."
+      ]
+    }
+  ],
+
+  "risk_logic": {
+    "bands": [
+      { "id": "low", "min_score": 0.0, "label_key": "risk.low", "action_key": "action.self_care" },
+      { "id": "moderate", "min_score": 0.40, "label_key": "risk.moderate", "action_key": "action.phc_review" },
+      { "id": "high", "min_score": 0.70, "label_key": "risk.high", "action_key": "action.specialist_review" }
+    ],
+    "default_referral": "phc_review",
+    "threshold_provenance": "PLACEHOLDER — 0.40 / 0.70 are deployment-configurable starting points, not validated operating points. They must be re-derived from pilot data with the sensitivity/specificity trade-off reviewed by a clinical advisor before any field use (PRD §26.5, §33 'Over-referral' / 'Under-referral').",
+    "operating_point": {
+      "priority": "sensitivity",
+      "rationale": "PRD §33 rates under-referral as High impact and over-referral as Medium. The default policy therefore accepts extra referrals in exchange for fewer missed high-priority cases, and this is reviewed against referral workload during pilot (M11)."
+    },
+    "deferral": {
+      "allowed": true,
+      "reason_required": true,
+      "$note": "PRD §11.2 — the worker may defer a flagged joint if the patient declines or the protocol is unsuitable; the reason is recorded."
+    }
+  },
+
+  "report_template": [
+    { "section_id": "patient", "title_key": "report.section.patient", "fields": ["arogya_patient_id", "masked_identity", "age", "sex", "datetime"] },
+    { "section_id": "worker_site", "title_key": "report.section.worker_site", "fields": ["worker_id", "worker_name", "phc", "district"] },
+    { "section_id": "initial_screen", "title_key": "report.section.initial_screen", "fields": ["pain_map", "mobility_summary", "exposure_profile"] },
+    { "section_id": "whole_body_screen", "title_key": "report.section.whole_body_screen", "fields": ["joint_markers", "data_quality"] },
+    { "section_id": "targeted_joint", "title_key": "report.section.targeted_joint", "fields": ["joint", "side", "womac_pain", "womac_stiffness", "womac_function", "womac_total", "knee_flexion_rom", "gait_features", "sensor_findings"] },
+    { "section_id": "ai_result", "title_key": "report.section.ai_result", "fields": ["risk_band", "evidence_contributors", "modality_confidence", "edge_model_version", "placement_notice"] },
+    { "section_id": "referral", "title_key": "report.section.referral", "fields": ["recommended_action", "urgency"] },
+    { "section_id": "preventive_guidance", "title_key": "report.section.preventive_guidance", "fields": ["guidance_items"] },
+    { "section_id": "disclaimer", "title_key": "report.section.disclaimer", "fields": ["screening_not_diagnosis"] }
+  ],
+
+  "safety": {
+    "contraindications": [
+      "Recent knee fracture or surgery within the recovery window set by the treating clinician",
+      "Acute trauma, suspected ligament or meniscal tear, or inability to weight-bear",
+      "Signs of infection: hot, swollen joint with fever",
+      "Uncontrolled pain that prevents the movement tests"
+    ],
+    "red_flags": [
+      "Locking or giving-way of the knee",
+      "Rapidly increasing swelling",
+      "Night pain with unintentional weight loss",
+      "Known malignancy, or immunosuppression with a swollen joint"
+    ],
+    "stop_conditions": [
+      "Patient reports pain above their stated tolerable level during any movement test",
+      "Pose quality gate cannot be cleared after two repositioning attempts",
+      "Patient becomes unsteady or requests to stop"
+    ],
+    "disclaimer_key": "disclaimer.screening_not_diagnosis"
+  }
+}

@@ -1,0 +1,459 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arogya-ner.local/schema/joint_protocol.schema.json",
+  "title": "Arogya-NER Joint Protocol",
+  "description": "The generic protocol object defined in PRD §12.1. Every joint module is an instance of this object. The platform (mobile app, backend, reporting) is configuration-driven: adding a joint must not require editing screen code (PRD §29 Maintainability, §6.1 UX rule).",
+  "type": "object",
+  "required": [
+    "joint_id",
+    "protocol_version",
+    "display",
+    "status",
+    "supported_sides",
+    "clinical_questionnaire",
+    "camera_setup",
+    "movement_tests",
+    "landmark_subset",
+    "wearable",
+    "feature_pipeline",
+    "models",
+    "risk_logic",
+    "report_template",
+    "safety"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "joint_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Stable machine identifier, e.g. 'knee'."
+    },
+    "protocol_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version. Bumping this must not invalidate historical results (PRD §27.2) — results store the version they were produced under."
+    },
+    "display": {
+      "type": "object",
+      "required": ["title", "short_title", "body_map_region", "laterality_required"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string" },
+        "short_title": { "type": "string" },
+        "body_map_region": {
+          "type": "string",
+          "description": "Key of the region on the visual body map (PRD §11.1)."
+        },
+        "laterality_required": {
+          "type": "boolean",
+          "description": "Whether the worker must choose right/left/both before the protocol starts."
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["mvp", "platform_ready", "future"],
+      "description": "PRD §12.2 joint roadmap. Only 'mvp' joints are expected to run end-to-end. This field drives what the UI promises the worker and is rendered verbatim in the protocol's maturity notice."
+    },
+    "supported_sides": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["left", "right", "both"] }
+    },
+    "clinical_questionnaire": {
+      "type": "object",
+      "required": ["instrument", "instrument_version", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "instrument": { "type": "string" },
+        "instrument_version": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["specified", "pending_clinical_sign_off"],
+          "description": "'specified' = item set and scoring are implemented and verified against the published instrument. 'pending_clinical_sign_off' = the intended instrument is named but its item set has NOT been transcribed, because transcribing or paraphrasing a licensed instrument's items is a clinical-governance decision, not an engineering one. A protocol in this state must not render questionnaire questions to a worker (PRD §1.2, §26.5)."
+        },
+        "reference_instrument": {
+          "type": "string",
+          "description": "Candidate instrument under consideration while status is pending_clinical_sign_off."
+        },
+        "licence_note": {
+          "type": "string",
+          "description": "Redistribution / use note. Clinical instruments carry their own licensing terms."
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "subscale", "text_key"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "subscale": { "type": "string" },
+              "text_key": {
+                "type": "string",
+                "description": "Localisation key (PRD §20.2). Resolved at runtime so clinical strings can be versioned separately from UI strings."
+              },
+              "voice_prompt_key": { "type": "string" }
+            }
+          }
+        },
+        "scoring": {
+          "type": "object",
+          "required": ["response_options", "subscales", "total", "direction"],
+          "additionalProperties": false,
+          "properties": {
+            "response_options": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "required": ["value", "text_key"],
+                "additionalProperties": false,
+                "properties": {
+                  "value": { "type": "integer", "minimum": 0 },
+                  "text_key": { "type": "string" }
+                }
+              }
+            },
+            "subscales": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["name", "min", "max"],
+                "additionalProperties": false,
+                "properties": {
+                  "name": { "type": "string" },
+                  "min": { "type": "number" },
+                  "max": { "type": "number" }
+                }
+              }
+            },
+            "total": {
+              "type": "object",
+              "required": ["min", "max"],
+              "additionalProperties": false,
+              "properties": {
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              }
+            },
+            "direction": {
+              "type": "string",
+              "enum": ["higher_is_worse", "higher_is_better"],
+              "description": "WOMAC is higher_is_worse (§13.2)."
+            },
+            "normalisation": {
+              "type": "string",
+              "enum": ["none", "percent_of_max"],
+              "description": "percent_of_max = raw / max * 100."
+            },
+            "severity_bands": {
+              "type": "array",
+              "description": "Optional. Empty or absent by default — Arogya-NER must not invent clinical cut-offs (PRD §1.2, §26.5). Bands here are deployment-configurable and are labelled unvalidated in the UI unless sourced.",
+              "items": {
+                "type": "object",
+                "required": ["max", "label_key"],
+                "additionalProperties": false,
+                "properties": {
+                  "max": { "type": "number" },
+                  "label_key": { "type": "string" },
+                  "validated": { "type": "boolean", "default": false },
+                  "source": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "if": { "properties": { "status": { "const": "specified" } }, "required": ["status"] },
+      "then": { "required": ["items", "scoring", "licence_note"] }
+    },
+    "camera_setup": {
+      "type": "object",
+      "required": ["views", "full_body_required", "est_distance_m"],
+      "additionalProperties": false,
+      "properties": {
+        "views": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "enum": ["front", "side_left", "side_right", "rear", "seated", "supine"] }
+        },
+        "full_body_required": { "type": "boolean" },
+        "est_distance_m": {
+          "type": "object",
+          "required": ["min", "max"],
+          "additionalProperties": false,
+          "properties": { "min": { "type": "number" }, "max": { "type": "number" } }
+        },
+        "framing_note_key": { "type": "string" },
+        "min_visibility_landmarks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Landmark keys that must clear the confidence gate before capture is allowed (PRD §9.4)."
+        }
+      }
+    },
+    "movement_tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name_key", "instruction_key", "kind", "repeat_count", "required", "derived_features"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "name_key": { "type": "string" },
+          "instruction_key": { "type": "string" },
+          "kind": {
+            "type": "string",
+            "enum": ["static_hold", "sit_to_stand", "walk", "squat", "step_down", "active_rom", "passive_rom", "reach", "balance"]
+          },
+          "repeat_count": { "type": "integer", "minimum": 1 },
+          "duration_s": { "type": "number" },
+          "required": { "type": "boolean" },
+          "camera_view": { "type": "string", "enum": ["front", "side_left", "side_right", "rear", "seated", "supine"] },
+          "derived_features": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Feature keys this test is expected to populate. Cross-checked against feature_pipeline by the protocol linter."
+          }
+        }
+      }
+    },
+    "landmark_subset": {
+      "type": "object",
+      "required": ["joint_chains", "primary_angle"],
+      "additionalProperties": false,
+      "properties": {
+        "joint_chains": {
+          "type": "array",
+          "description": "PRD §10.2 — chains such as hip -> knee -> ankle used for angle computation.",
+          "items": {
+            "type": "object",
+            "required": ["name", "landmarks", "angle_feature"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "landmarks": {
+                "type": "array",
+                "minItems": 3,
+                "items": { "type": "string", "description": "Landmark key from protocols/core/landmarks.json" }
+              },
+              "angle_feature": { "type": "string" }
+            }
+          }
+        },
+        "primary_angle": { "type": "string", "description": "Feature key of the single most important angle for this joint." }
+      }
+    },
+    "wearable": {
+      "type": "object",
+      "required": ["supported", "configurations", "sensor_channels", "sample_rate_hz"],
+      "additionalProperties": false,
+      "properties": {
+        "supported": { "type": "boolean" },
+        "configurations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "pods", "label_key", "status"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "pods": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["pod_index", "segment", "placement_key"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "pod_index": { "type": "integer", "minimum": 1 },
+                    "segment": { "type": "string" },
+                    "placement_key": { "type": "string" }
+                  }
+                }
+              },
+              "label_key": { "type": "string" },
+              "status": {
+                "type": "string",
+                "enum": ["preferred", "demonstrator", "untrained"],
+                "description": "'untrained' = the placement is wired into the app but no validated model consumes it yet. Must be surfaced honestly in the UI (PRD §1.2)."
+              }
+            }
+          }
+        },
+        "sensor_channels": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "enum": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"] }
+        },
+        "sample_rate_hz": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "feature_pipeline": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "group", "unit", "source", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string" },
+          "group": {
+            "type": "string",
+            "enum": ["camera_kinematics", "camera_gait", "camera_posture", "imu_acc", "imu_gyro", "imu_relative", "clinical"]
+          },
+          "unit": { "type": "string" },
+          "source": { "type": "string", "enum": ["camera", "wearable", "questionnaire", "derived"] },
+          "description": { "type": "string" },
+          "research_grade": {
+            "type": "boolean",
+            "default": false,
+            "description": "true = exploratory/secondary only. PRD §13.4 varus/valgus and §15.3 crepitus must stay out of the primary model until benchmarked."
+          }
+        }
+      }
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["branch", "model_id", "version", "target", "deployment", "training_status", "explainability"],
+        "additionalProperties": false,
+        "properties": {
+          "branch": {
+            "type": "string",
+            "enum": ["camera_temporal", "imu_temporal", "clinical_tabular", "imaging", "fusion", "stage1_localisation"]
+          },
+          "model_id": { "type": "string" },
+          "version": { "type": "string" },
+          "target": {
+            "type": "object",
+            "required": ["label", "label_source", "label_provenance"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "label_source": { "type": "string" },
+              "label_provenance": {
+                "type": "string",
+                "description": "Which real dataset (or 'none') the label derives from. Drives the honesty banner shown next to any score."
+              }
+            }
+          },
+          "deployment": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["edge_tflite", "cloud"] }
+          },
+          "architecture": { "type": "string" },
+          "training_status": {
+            "type": "string",
+            "enum": ["trained", "untrained_insufficient_data", "prototype_rule_based", "planned"],
+            "description": "Single source of truth for what the UI is allowed to claim (PRD §26.5). 'trained' still means prototype-not-clinically-validated."
+          },
+          "dataset": { "type": "string" },
+          "metrics": {
+            "type": "object",
+            "description": "Populated only after real evaluation. Absent means unmeasured — never fabricate (PRD §1.2).",
+            "additionalProperties": true
+          },
+          "explainability": {
+            "type": "string",
+            "enum": ["shap", "feature_attribution", "none"]
+          },
+          "input_modalities": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["pose_landmarks", "imu_l5", "imu_dorsal_foot", "imu_thigh", "imu_shank", "questionnaire", "demographics", "radiograph"] },
+            "description": "Exactly what the trained artefact consumes. Distinct from the protocol's intended clinical protocol — where these diverge, placement_note must explain it."
+          },
+          "placement_note": {
+            "type": "string",
+            "description": "Set when the model was trained on a sensor placement that differs from the protocol's wearable configuration. Rendered to the specialist so a score is never read as if it came from the intended placement (PRD §1.2, §33 'Wearable placement variation')."
+          },
+          "limitations": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Known, specific weaknesses of this artefact. Rendered alongside the score."
+          }
+        }
+      }
+    },
+    "risk_logic": {
+      "type": "object",
+      "required": ["bands", "default_referral", "threshold_provenance"],
+      "additionalProperties": false,
+      "properties": {
+        "bands": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["id", "min_score", "label_key", "action_key"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "enum": ["low", "moderate", "high"] },
+              "min_score": { "type": "number", "minimum": 0, "maximum": 1 },
+              "label_key": { "type": "string" },
+              "action_key": { "type": "string" }
+            }
+          }
+        },
+        "default_referral": {
+          "type": "string",
+          "enum": ["self_care", "phc_review", "specialist_review", "urgent_clinical_review"]
+        },
+        "threshold_provenance": {
+          "type": "string",
+          "description": "Where the thresholds came from. Must state plainly when they are configurable placeholders rather than validated operating points (PRD §33 'Over-referral'/'Under-referral')."
+        },
+        "operating_point": {
+          "type": "object",
+          "description": "Chosen operating point + the sensitivity/specificity trade-off rationale (PRD §26.4, §33).",
+          "additionalProperties": true
+        },
+        "deferral": {
+          "type": "object",
+          "required": ["allowed", "reason_required"],
+          "additionalProperties": false,
+          "properties": {
+            "allowed": { "type": "boolean" },
+            "reason_required": { "type": "boolean" }
+          },
+          "description": "PRD §11.2 — the healthcare worker may defer a flagged joint if the patient declines or the protocol is unsuitable; the reason is recorded so the deferral is auditable rather than silent."
+        }
+      }
+    },
+    "report_template": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["section_id", "title_key", "fields"],
+        "additionalProperties": false,
+        "properties": {
+          "section_id": { "type": "string" },
+          "title_key": { "type": "string" },
+          "fields": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": ["contraindications", "red_flags", "stop_conditions", "disclaimer_key"],
+      "additionalProperties": false,
+      "properties": {
+        "contraindications": { "type": "array", "items": { "type": "string" } },
+        "red_flags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Findings that bypass the model and route straight to clinical review (PRD §29 Clinical safety)."
+        },
+        "stop_conditions": { "type": "array", "items": { "type": "string" } },
+        "disclaimer_key": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,95 @@
+# ─────────────────────────────────────────────────────────────
+# Arogya-NER — monorepo ignore rules
+# ─────────────────────────────────────────────────────────────
+
+# ── Secrets / local env (NEVER commit) ──────────────────────
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+key.properties
+**/secrets/
+**/credentials/
+
+# ── Patient data (never commit real or synthetic patient records) ──
+**/patient_data/
+**/*.sqlcipher
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+!**/schema/*.sql
+
+# ── Datasets (downloaded, large, licence-bound) ─────────────
+ml/datasets/raw/
+ml/datasets/interim/
+ml/datasets/processed/
+ml/datasets/**/*.zip
+ml/datasets/**/*.csv.gz
+ml/datasets/**/*.parquet
+
+# ── Trained model binaries (tracked via version metadata + release notes) ──
+ml/**/artifacts/*.tflite
+ml/**/artifacts/*.h5
+ml/**/artifacts/*.pt
+ml/**/artifacts/*.onnx
+*.tflite
+*.onnx
+mobile/assets/models/*.tflite
+
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ── Node / dashboard ────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+npm-debug.log*
+yarn-error.log*
+
+# ── Flutter / Dart ──────────────────────────────────────────
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/app/debug/
+mobile/android/app/profile/
+mobile/android/app/release/
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+
+# ── ESP32 / PlatformIO ─────────────────────────────────────
+.pio/
+.pioenvs/
+.piolibdeps/
+hardware/esp32_firmware/.pio/
+
+# ── Editors / OS ───────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+
+# ── Scratch ─────────────────────────────────────────────────
+/tmp/
+*.log

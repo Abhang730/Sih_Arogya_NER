@@ -1,0 +1,14 @@
+{
+  "weights": {
+    "imu_temporal": 0.4,
+    "clinical_tabular": 0.35,
+    "stage1_localisation": 0.15,
+    "camera_temporal": 0.1,
+    "imaging": 0.05
+  },
+  "confidence_exponent": 1.0,
+  "calibrated": false,
+  "provenance": "UNVALIDATED DEFAULT — declared engineering weights, not fitted coefficients. Only one modality has labelled training data, so there is nothing to fit fusion against yet and PRD §15.5 remains unmet. ml/build_app_assets.py writes this file so fitted coefficients have an obvious destination later.",
+  "dataset": "Voisard et al. 2025 (branch metrics only; fusion itself not fitted)",
+  "fitted_at": null
+}

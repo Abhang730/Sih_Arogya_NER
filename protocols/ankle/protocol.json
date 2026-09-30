@@ -1,0 +1,209 @@
+{
+  "$schema": "../schema/joint_protocol.schema.json",
+  "joint_id": "ankle",
+  "protocol_version": "1.0.0",
+  "display": {
+    "title": "Ankle Assessment",
+    "short_title": "Ankle",
+    "body_map_region": "ankle",
+    "laterality_required": true
+  },
+  "status": "platform_ready",
+  "supported_sides": ["left", "right", "both"],
+
+  "clinical_questionnaire": {
+    "instrument": "FAAM",
+    "instrument_version": "to be confirmed with clinical advisor",
+    "status": "pending_clinical_sign_off",
+    "reference_instrument": "Foot and Ankle Ability Measure (FAAM) is the candidate named here, covering activities of daily living and sport subscales.",
+    "$status_reason": "The PRD (§12.2) names an ankle protocol without specifying an instrument. Item sets for licensed instruments are not transcribed until confirmed — see PRD §1.2 and §26.5. The app reports measurements only for this joint.",
+    "licence_note": "Confirm permitted use and attribution before transcribing FAAM items."
+  },
+
+  "camera_setup": {
+    "views": ["side_right", "side_left", "front"],
+    "full_body_required": false,
+    "est_distance_m": { "min": 2.0, "max": 3.5 },
+    "framing_note_key": "cam.ankle.framing",
+    "min_visibility_landmarks": [
+      "left_knee", "right_knee", "left_ankle", "right_ankle",
+      "left_heel", "right_heel", "left_foot_index", "right_foot_index"
+    ]
+  },
+
+  "movement_tests": [
+    {
+      "id": "ankle_active_rom",
+      "name_key": "test.ankle.active_rom.name",
+      "instruction_key": "test.ankle.active_rom.instruction",
+      "kind": "active_rom",
+      "repeat_count": 3,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": ["ankle_dorsiflexion_rom", "ankle_plantarflexion_rom"]
+    },
+    {
+      "id": "ankle_short_walk",
+      "name_key": "test.ankle.short_walk.name",
+      "instruction_key": "test.ankle.short_walk.instruction",
+      "kind": "walk",
+      "repeat_count": 6,
+      "duration_s": 15,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": ["gait_cadence", "gait_step_time_cv", "ankle_excursion_mean"]
+    },
+    {
+      "id": "ankle_balance",
+      "name_key": "test.ankle.balance.name",
+      "instruction_key": "test.ankle.balance.instruction",
+      "kind": "balance",
+      "repeat_count": 2,
+      "duration_s": 10,
+      "required": false,
+      "camera_view": "front",
+      "derived_features": ["balance_sway_index"]
+    }
+  ],
+
+  "landmark_subset": {
+    "joint_chains": [
+      { "name": "right_ankle_dorsiflexion", "landmarks": ["right_knee", "right_ankle", "right_foot_index"], "angle_feature": "ankle_dorsiflexion_angle_right" },
+      { "name": "left_ankle_dorsiflexion", "landmarks": ["left_knee", "left_ankle", "left_foot_index"], "angle_feature": "ankle_dorsiflexion_angle_left" }
+    ],
+    "primary_angle": "ankle_dorsiflexion_angle_right"
+  },
+
+  "wearable": {
+    "supported": true,
+    "configurations": [
+      {
+        "id": "single_pod_shank",
+        "pods": [{ "pod_index": 1, "segment": "shank", "placement_key": "place.ankle.pod1.shank" }],
+        "label_key": "wearable.ankle.single",
+        "status": "preferred",
+        "$note": "PRD §12.2 representative placement: shank/foot configuration."
+      },
+      {
+        "id": "dual_pod_shank_dorsal_foot",
+        "pods": [
+          { "pod_index": 1, "segment": "shank", "placement_key": "place.ankle.pod1.shank" },
+          { "pod_index": 2, "segment": "dorsal_foot", "placement_key": "place.ankle.pod2.dorsal_foot" }
+        ],
+        "label_key": "wearable.ankle.dual",
+        "status": "untrained",
+        "$note": "The dorsal-foot pod matches the placement at which real IMU data exists, but that dataset contains no ankle-OA cohort."
+      }
+    ],
+    "sensor_channels": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"],
+    "sample_rate_hz": 50
+  },
+
+  "feature_pipeline": [
+    { "key": "ankle_dorsiflexion_angle_right", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Right ankle dorsiflexion angle from the knee-ankle-foot_index chain. The protocol's primary angle item." },
+    { "key": "ankle_dorsiflexion_angle_left", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Left ankle dorsiflexion angle from the knee-ankle-foot_index chain." },
+    { "key": "ankle_dorsiflexion_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active ankle dorsiflexion range of motion." },
+    { "key": "ankle_plantarflexion_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active ankle plantarflexion range of motion." },
+    { "key": "ankle_excursion_mean", "group": "camera_gait", "unit": "deg", "source": "derived", "description": "Mean ankle excursion per stride." },
+    { "key": "gait_cadence", "group": "camera_gait", "unit": "steps/min", "source": "camera", "description": "Step rate." },
+    { "key": "gait_step_time_cv", "group": "camera_gait", "unit": "ratio", "source": "derived", "description": "Step-time variability." },
+    { "key": "balance_sway_index", "group": "camera_posture", "unit": "ratio", "source": "derived", "description": "Postural sway index during the balance hold, from pelvis landmark displacement." },
+    { "key": "imu_acc_magnitude_mean", "group": "imu_acc", "unit": "g", "source": "wearable", "description": "Mean Euclidean acceleration magnitude." },
+    { "key": "imu_gyro_magnitude_mean", "group": "imu_gyro", "unit": "deg/s", "source": "wearable", "description": "Mean angular velocity magnitude." },
+    { "key": "imu_signal_quality", "group": "imu_acc", "unit": "ratio", "source": "derived", "description": "Sensor quality score." }
+  ],
+
+  "models": [
+    {
+      "branch": "camera_temporal",
+      "model_id": "ankle_camera_tcn",
+      "version": "0.0.0",
+      "target": { "label": "ankle_oa_risk_marker", "label_source": "none available", "label_provenance": "no public labelled pose-sequence dataset for ankle OA is wired in" },
+      "deployment": ["edge_tflite"],
+      "architecture": "1D-CNN / TCN over engineered pose features",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": ["Deliberately untrained. Ankle angles and balance are reported as measurements only."]
+    },
+    {
+      "branch": "imu_temporal",
+      "model_id": "ankle_imu_temporal",
+      "version": "0.0.0",
+      "target": { "label": "ankle_oa_risk_marker", "label_source": "none available", "label_provenance": "the sourced real IMU cohort dataset covers knee and hip osteoarthritis and ACL injury, but contains no ankle osteoarthritis cohort" },
+      "deployment": ["edge_tflite"],
+      "architecture": "TCN over IMU features",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["imu_dorsal_foot"],
+      "limitations": ["Untrained. This is a genuine dataset coverage gap, not a pending task."]
+    },
+    {
+      "branch": "clinical_tabular",
+      "model_id": "ankle_clinical_xgb",
+      "version": "0.0.0",
+      "target": { "label": "ankle_oa_risk_marker", "label_source": "none available", "label_provenance": "questionnaire not yet configured" },
+      "deployment": ["edge_tflite"],
+      "architecture": "XGBoost + SHAP",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "shap",
+      "input_modalities": ["questionnaire"],
+      "limitations": ["Blocked on questionnaire clinical sign-off."]
+    },
+    {
+      "branch": "fusion",
+      "model_id": "ankle_fusion_lr",
+      "version": "0.0.0",
+      "target": { "label": "ankle_oa_risk_marker", "label_source": "none available", "label_provenance": "no trained contributing branch" },
+      "deployment": ["edge_tflite"],
+      "architecture": "calibrated logistic regression",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": ["All branches untrained, so no fused score is emitted."]
+    }
+  ],
+
+  "risk_logic": {
+    "bands": [
+      { "id": "low", "min_score": 0.0, "label_key": "risk.low", "action_key": "action.self_care" },
+      { "id": "moderate", "min_score": 0.40, "label_key": "risk.moderate", "action_key": "action.phc_review" },
+      { "id": "high", "min_score": 0.70, "label_key": "risk.high", "action_key": "action.specialist_review" }
+    ],
+    "default_referral": "phc_review",
+    "threshold_provenance": "PLACEHOLDER — UI bucket boundaries only; no model consumes them for this joint.",
+    "operating_point": { "priority": "sensitivity", "rationale": "PRD §33: under-referral is rated High impact." },
+    "deferral": { "allowed": true, "reason_required": true }
+  },
+
+  "report_template": [
+    { "section_id": "patient", "title_key": "report.section.patient", "fields": ["arogya_patient_id", "masked_identity", "age", "sex", "datetime"] },
+    { "section_id": "worker_site", "title_key": "report.section.worker_site", "fields": ["worker_id", "worker_name", "phc", "district"] },
+    { "section_id": "initial_screen", "title_key": "report.section.initial_screen", "fields": ["pain_map", "mobility_summary", "exposure_profile"] },
+    { "section_id": "whole_body_screen", "title_key": "report.section.whole_body_screen", "fields": ["joint_markers", "data_quality"] },
+    { "section_id": "targeted_joint", "title_key": "report.section.targeted_joint", "fields": ["joint", "side", "ankle_dorsiflexion_rom", "gait_features", "balance_sway_index", "sensor_findings"] },
+    { "section_id": "ai_result", "title_key": "report.section.ai_result", "fields": ["measurement_summary", "modality_confidence", "protocol_status_notice"] },
+    { "section_id": "referral", "title_key": "report.section.referral", "fields": ["recommended_action", "urgency"] },
+    { "section_id": "preventive_guidance", "title_key": "report.section.preventive_guidance", "fields": ["guidance_items"] },
+    { "section_id": "disclaimer", "title_key": "report.section.disclaimer", "fields": ["screening_not_diagnosis"] }
+  ],
+
+  "safety": {
+    "contraindications": [
+      "Recent ankle fracture or ligament injury within the clinician-set recovery window",
+      "Inability to weight-bear",
+      "Acute swelling with signs of infection"
+    ],
+    "red_flags": [
+      "Inability to weight-bear after trauma (Ottawa ankle rule criteria)",
+      "Hot swollen joint with fever",
+      "Night pain with systemic symptoms"
+    ],
+    "stop_conditions": [
+      "Pain above the patient's stated tolerable level",
+      "Unsteadiness during the balance test — abandon immediately",
+      "Pose quality gate not cleared after two repositioning attempts"
+    ],
+    "disclaimer_key": "disclaimer.screening_not_diagnosis"
+  }
+}

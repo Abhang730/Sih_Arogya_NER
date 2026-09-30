@@ -1,0 +1,208 @@
+{
+  "$schema": "../schema/joint_protocol.schema.json",
+  "joint_id": "shoulder",
+  "protocol_version": "1.0.0",
+  "display": {
+    "title": "Shoulder Assessment",
+    "short_title": "Shoulder",
+    "body_map_region": "shoulder",
+    "laterality_required": true
+  },
+  "status": "platform_ready",
+  "supported_sides": ["left", "right", "both"],
+
+  "clinical_questionnaire": {
+    "instrument": "SPADI",
+    "instrument_version": "to be confirmed with clinical advisor",
+    "status": "pending_clinical_sign_off",
+    "reference_instrument": "Shoulder Pain and Disability Index (SPADI) is the candidate named here; QuickDASH is the alternative under consideration.",
+    "$status_reason": "The PRD (§12.2) names a 'shoulder questionnaire' without specifying one, and transcribing or paraphrasing a licensed instrument's items is a clinical-governance decision. The item set and scoring rules are therefore NOT defined here. A protocol in this state must not present questions to a healthcare worker; the app surfaces 'questionnaire not yet configured' and falls back to the Stage-1 symptom screen.",
+    "licence_note": "SPADI / QuickDASH carry their own licensing terms. Confirm permitted use and required attribution before transcribing."
+  },
+
+  "camera_setup": {
+    "views": ["front", "side_right", "side_left"],
+    "full_body_required": false,
+    "est_distance_m": { "min": 1.5, "max": 3.0 },
+    "framing_note_key": "cam.shoulder.framing",
+    "min_visibility_landmarks": [
+      "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
+      "left_wrist", "right_wrist", "left_hip", "right_hip"
+    ]
+  },
+
+  "movement_tests": [
+    {
+      "id": "shoulder_flexion",
+      "name_key": "test.shoulder.flexion.name",
+      "instruction_key": "test.shoulder.flexion.instruction",
+      "kind": "active_rom",
+      "repeat_count": 3,
+      "required": true,
+      "camera_view": "side_right",
+      "derived_features": ["shoulder_flexion_rom", "shoulder_elevation_compensation"]
+    },
+    {
+      "id": "shoulder_abduction",
+      "name_key": "test.shoulder.abduction.name",
+      "instruction_key": "test.shoulder.abduction.instruction",
+      "kind": "active_rom",
+      "repeat_count": 3,
+      "required": true,
+      "camera_view": "front",
+      "derived_features": ["shoulder_abduction_rom", "scapular_hike_proxy"]
+    },
+    {
+      "id": "shoulder_reach",
+      "name_key": "test.shoulder.reach.name",
+      "instruction_key": "test.shoulder.reach.instruction",
+      "kind": "reach",
+      "repeat_count": 2,
+      "required": false,
+      "camera_view": "front",
+      "derived_features": ["shoulder_symmetry_index"]
+    }
+  ],
+
+  "landmark_subset": {
+    "joint_chains": [
+      { "name": "right_shoulder_flexion", "landmarks": ["right_hip", "right_shoulder", "right_elbow"], "angle_feature": "shoulder_flexion_angle_right" },
+      { "name": "left_shoulder_flexion", "landmarks": ["left_hip", "left_shoulder", "left_elbow"], "angle_feature": "shoulder_flexion_angle_left" },
+      { "name": "right_elbow_flexion", "landmarks": ["right_shoulder", "right_elbow", "right_wrist"], "angle_feature": "elbow_flexion_angle_right" }
+    ],
+    "primary_angle": "shoulder_flexion_angle_right"
+  },
+
+  "wearable": {
+    "supported": true,
+    "configurations": [
+      {
+        "id": "single_pod_upper_arm",
+        "pods": [{ "pod_index": 1, "segment": "upper_arm", "placement_key": "place.shoulder.pod1.upper_arm" }],
+        "label_key": "wearable.shoulder.single",
+        "status": "preferred",
+        "$note": "PRD §12.2 representative placement: arm/torso IMU."
+      },
+      {
+        "id": "dual_pod_torso_upper_arm",
+        "pods": [
+          { "pod_index": 1, "segment": "torso", "placement_key": "place.shoulder.pod1.torso" },
+          { "pod_index": 2, "segment": "upper_arm", "placement_key": "place.shoulder.pod2.upper_arm" }
+        ],
+        "label_key": "wearable.shoulder.dual",
+        "status": "untrained",
+        "$note": "Would isolate glenohumeral motion from trunk motion."
+      }
+    ],
+    "sensor_channels": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"],
+    "sample_rate_hz": 50
+  },
+
+  "feature_pipeline": [
+    { "key": "shoulder_flexion_angle_right", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Right shoulder flexion angle from the hip-shoulder-elbow chain. The protocol's primary angle item." },
+    { "key": "shoulder_flexion_angle_left", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Left shoulder flexion angle from the hip-shoulder-elbow chain." },
+    { "key": "elbow_flexion_angle_right", "group": "camera_kinematics", "unit": "deg", "source": "camera", "description": "Right elbow flexion angle, derived alongside the shoulder for movement-quality context." },
+    { "key": "shoulder_flexion_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active shoulder flexion range of motion." },
+    { "key": "shoulder_abduction_rom", "group": "camera_kinematics", "unit": "deg", "source": "derived", "description": "Active shoulder abduction range of motion." },
+    { "key": "shoulder_symmetry_index", "group": "camera_kinematics", "unit": "ratio", "source": "derived", "description": "Left/right shoulder movement symmetry." },
+    { "key": "shoulder_elevation_compensation", "group": "camera_posture", "unit": "deg", "source": "derived", "description": "Trunk lean used to compensate for limited shoulder elevation." },
+    { "key": "scapular_hike_proxy", "group": "camera_posture", "unit": "ratio", "source": "derived", "description": "Shoulder-girdle elevation proxy relative to the contralateral side.", "research_grade": true },
+    { "key": "imu_acc_magnitude_mean", "group": "imu_acc", "unit": "g", "source": "wearable", "description": "Mean Euclidean acceleration magnitude." },
+    { "key": "imu_gyro_magnitude_mean", "group": "imu_gyro", "unit": "deg/s", "source": "wearable", "description": "Mean angular velocity magnitude." },
+    { "key": "imu_signal_quality", "group": "imu_acc", "unit": "ratio", "source": "derived", "description": "Sensor quality score." }
+  ],
+
+  "models": [
+    {
+      "branch": "camera_temporal",
+      "model_id": "shoulder_camera_tcn",
+      "version": "0.0.0",
+      "target": { "label": "shoulder_oa_risk_marker", "label_source": "none available", "label_provenance": "no public labelled pose-sequence dataset for shoulder OA is wired in" },
+      "deployment": ["edge_tflite"],
+      "architecture": "1D-CNN / TCN over engineered pose features",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": ["Deliberately untrained. Shoulder range-of-motion values are still measured and reported as measurements (PRD §26.5)."]
+    },
+    {
+      "branch": "imu_temporal",
+      "model_id": "shoulder_imu_temporal",
+      "version": "0.0.0",
+      "target": { "label": "shoulder_oa_risk_marker", "label_source": "none available", "label_provenance": "the available real IMU cohort dataset contains lower-limb and neurological cohorts only — no shoulder OA cohort" },
+      "deployment": ["edge_tflite"],
+      "architecture": "TCN over IMU features",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["imu_thigh"],
+      "limitations": ["Untrained — no labelled shoulder IMU data exists in the sourced datasets."]
+    },
+    {
+      "branch": "clinical_tabular",
+      "model_id": "shoulder_clinical_xgb",
+      "version": "0.0.0",
+      "target": { "label": "shoulder_oa_risk_marker", "label_source": "none available", "label_provenance": "questionnaire not yet configured" },
+      "deployment": ["edge_tflite"],
+      "architecture": "XGBoost + SHAP",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "shap",
+      "input_modalities": ["questionnaire"],
+      "limitations": ["Blocked on questionnaire clinical sign-off."]
+    },
+    {
+      "branch": "fusion",
+      "model_id": "shoulder_fusion_lr",
+      "version": "0.0.0",
+      "target": { "label": "shoulder_oa_risk_marker", "label_source": "none available", "label_provenance": "no trained contributing branch" },
+      "deployment": ["edge_tflite"],
+      "architecture": "calibrated logistic regression",
+      "training_status": "untrained_insufficient_data",
+      "explainability": "feature_attribution",
+      "input_modalities": ["pose_landmarks"],
+      "limitations": ["All contributing branches are untrained, so no fusion score is produced. The app reports measurements and defers to clinical judgement."]
+    }
+  ],
+
+  "risk_logic": {
+    "bands": [
+      { "id": "low", "min_score": 0.0, "label_key": "risk.low", "action_key": "action.self_care" },
+      { "id": "moderate", "min_score": 0.40, "label_key": "risk.moderate", "action_key": "action.phc_review" },
+      { "id": "high", "min_score": 0.70, "label_key": "risk.high", "action_key": "action.specialist_review" }
+    ],
+    "default_referral": "phc_review",
+    "threshold_provenance": "PLACEHOLDER — no model consumes these bands yet for this joint; they define UI buckets only.",
+    "operating_point": { "priority": "sensitivity", "rationale": "PRD §33: under-referral is rated High impact." },
+    "deferral": { "allowed": true, "reason_required": true }
+  },
+
+  "report_template": [
+    { "section_id": "patient", "title_key": "report.section.patient", "fields": ["arogya_patient_id", "masked_identity", "age", "sex", "datetime"] },
+    { "section_id": "worker_site", "title_key": "report.section.worker_site", "fields": ["worker_id", "worker_name", "phc", "district"] },
+    { "section_id": "initial_screen", "title_key": "report.section.initial_screen", "fields": ["pain_map", "mobility_summary", "exposure_profile"] },
+    { "section_id": "whole_body_screen", "title_key": "report.section.whole_body_screen", "fields": ["joint_markers", "data_quality"] },
+    { "section_id": "targeted_joint", "title_key": "report.section.targeted_joint", "fields": ["joint", "side", "shoulder_flexion_rom", "shoulder_abduction_rom", "sensor_findings"] },
+    { "section_id": "ai_result", "title_key": "report.section.ai_result", "fields": ["measurement_summary", "modality_confidence", "protocol_status_notice"] },
+    { "section_id": "referral", "title_key": "report.section.referral", "fields": ["recommended_action", "urgency"] },
+    { "section_id": "preventive_guidance", "title_key": "report.section.preventive_guidance", "fields": ["guidance_items"] },
+    { "section_id": "disclaimer", "title_key": "report.section.disclaimer", "fields": ["screening_not_diagnosis"] }
+  ],
+
+  "safety": {
+    "contraindications": [
+      "Recent shoulder dislocation, fracture or surgery within the clinician-set recovery window",
+      "Suspected acute rotator-cuff tear with inability to elevate the arm",
+      "Uncontrolled pain preventing active movement"
+    ],
+    "red_flags": [
+      "Trauma with deformity or suspected dislocation",
+      "Night pain with systemic symptoms or weight loss",
+      "Unexplained loss of passive as well as active range"
+    ],
+    "stop_conditions": [
+      "Pain above the patient's stated tolerable level",
+      "Patient requests to stop",
+      "Pose quality gate not cleared after two repositioning attempts"
+    ],
+    "disclaimer_key": "disclaimer.screening_not_diagnosis"
+  }
+}
