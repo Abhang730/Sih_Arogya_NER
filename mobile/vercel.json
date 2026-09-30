@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "flutter build web --release",
+  "outputDirectory": "build/web",
+  "devCommand": "flutter run -d chrome",
   "rewrites": [
     {
       "source": "/((?!.*\\.(?:js|wasm|json|png|jpg|jpeg|svg|ico|css|ttf|otf|woff2?|map)$).*)",
