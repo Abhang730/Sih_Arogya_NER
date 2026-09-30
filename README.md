@@ -127,3 +127,4 @@ Honest status, by design. The PRD's own maturity column reads the same way.
   and is never the operational identifier (§7.2).
 - No personal or patient data is committed to this repository. `.gitignore` excludes local
   databases, dataset downloads and model binaries.
+# Deployment trigger
